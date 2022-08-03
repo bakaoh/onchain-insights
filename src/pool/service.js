@@ -1,3 +1,4 @@
+require('../common/network').useAvalanche();
 const PairModel = require("./pair");
 
 const pairModel = new PairModel();
