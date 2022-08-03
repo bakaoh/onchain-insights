@@ -9,8 +9,7 @@ let current = {
 const getConfig = () => current;
 
 const useAvalanche = () => {
-    const web3 = new Web3("https://api.avax.network/ext/bc/C/rpc");
-    web3.eth.handleRevert = true;
+    current.web3 = new Web3("https://api.avax.network/ext/bc/C/rpc");
     current.address.common = '0xA8421D936FB34b6aA69Dc2249683303bc457c9E4';
 }
 
