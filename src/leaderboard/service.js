@@ -1,7 +1,7 @@
 require('../common/network').useBSC();
 const express = require("express");
 const SyncModel = require("./sync");
-const { pairModel, syncModel } = require('./model');
+const { pairModel } = require('./model');
 
 const syncModel = new SyncModel();
 
