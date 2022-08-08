@@ -25,9 +25,12 @@ class SyncModel {
     }
 
     onSyncLog(block, txIdx, logIdx, pair, reserve0, reserve1) {
+        const tokens = pairModel.getTokens(pair);
+        if (!tokens) return;
+
         reserve0 = toBN(reserve0);
         reserve1 = toBN(reserve1);
-        const { token0, token1 } = pairModel.getTokens(pair);
+        const { token0, token1 } = tokens;
         if (isUSD(token0)) {
             this.lastPrice[token1] = calcPrice([reserve1, reserve0]);
         } else if (isUSD(token1)) {
