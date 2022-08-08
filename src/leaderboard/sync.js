@@ -23,7 +23,7 @@ class SyncModel {
 
     async get(token) {
         const pools = pairModel.getPools(token);
-        const liquidity = ZERO;
+        let liquidity = ZERO;
         for (let pair in pools) {
             if (!this.reserves[pair]) continue;
             if (pools[pair].token0 == token) liquidity = liquidity.add(this.reserves[pair][0]);
