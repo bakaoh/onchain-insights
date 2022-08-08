@@ -38,6 +38,7 @@ class SyncModel {
     }
 
     onSyncLog(block, txIdx, logIdx, pair, reserve0, reserve1) {
+        if (reserve0 == '0' || reserve1 == '0') return;
         const tokens = pairModel.getTokens(pair);
         if (!tokens) return;
 
