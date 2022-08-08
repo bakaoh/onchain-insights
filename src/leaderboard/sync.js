@@ -1,3 +1,4 @@
+const Partitioner = require('../common/partitioner');
 const Crawler = require("../common/crawler");
 const { web3, ContractAddress, isUSD } = require('../common/network').getConfig();
 const { pairModel } = require('./model');
@@ -7,6 +8,8 @@ const SYNC_TOPIC = '0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9ff
 
 class SyncModel {
     constructor() {
+        this.partitioner = new Partitioner('db/sync');
+
         this.price = {};
         this.volume = {};
         this.tx = {};
@@ -70,6 +73,9 @@ class SyncModel {
         if (block % 1200 == 0) this.hourlySnapshot(block);
 
         const { token0, token1 } = tokens;
+        const idx = Math.floor(block / Partitioner.BPF);
+        this.partitioner.getWriter('all', idx).write(`${block},${txIdx},${logIdx},${token0},${token1},${reserve0},${reserve1}\n`);
+
         reserve0 = toBN(reserve0);
         reserve1 = toBN(reserve1);
 
