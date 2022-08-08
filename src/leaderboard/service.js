@@ -26,3 +26,5 @@ async function start(port) {
 }
 
 start(9613);
+
+// curl http://localhost:9613/api/0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82
