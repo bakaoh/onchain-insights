@@ -1,14 +1,28 @@
 require('../common/network').useBSC();
+const express = require("express");
+const SyncModel = require("./sync");
 const { pairModel, syncModel } = require('./model');
 
-async function start() {
+const syncModel = new SyncModel();
+
+const app = express();
+app.use(express.json());
+
+app.get('/api/:token', async (req, res) => {
+    const token = req.params.token;
+    const rs = await syncModel.get(token);
+    res.json(rs);
+})
+
+async function start(port) {
     const startMs = Date.now();
 
     await pairModel.warmup();
     pairModel.runCrawler();
     syncModel.runCrawler();
 
-    console.log(`Service start (${Date.now() - startMs}ms)`)
+    app.listen(port);
+    console.log(`Service start at port ${port} (${Date.now() - startMs}ms)`)
 }
 
-start();
+start(9613);
