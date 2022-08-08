@@ -1,3 +1,4 @@
+const LineByLine = require('line-by-line');
 const fs = require('fs');
 const opts = { flags: "a" };
 
