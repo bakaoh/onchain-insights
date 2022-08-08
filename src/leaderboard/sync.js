@@ -26,7 +26,10 @@ class SyncModel {
 
     onSyncLog(block, txIdx, logIdx, pair, reserve0, reserve1) {
         const tokens = pairModel.getTokens(pair);
-        if (!tokens) return;
+        if (!tokens) {
+            console.log("Not found", pair);
+            return;
+        }
 
         reserve0 = toBN(reserve0);
         reserve1 = toBN(reserve1);

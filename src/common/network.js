@@ -30,11 +30,17 @@ const useBSC = () => {
         '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56', // BUSD
         '0x55d398326f99059fF775485246999027B3197955', // USDT
     ]
+    const supportFactory = [
+        '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73', // Pancake
+        '0x0841BD0B734E4F5853f0dD8d7Ea041c241fb0Da6', // Apeswap
+        '0x858E3312ed3A876947EA49d572A7C42DE08af7EE', // Biswap
+    ]
     current.web3 = new Web3("https://bsc-dataseed.binance.org");
     current.ContractAddress.common = '0x3E694aCF551425A657A7F974ab6F876E3b0822Fe';
     current.ContractAddress.wrappedNative = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
     current.ContractAddress.nativePricePair = '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16'; // Pancake WBNB-BUSD 
     current.isUSD = (token) => usd.includes(token);
+    current.isSupportFactory = (factory) => supportFactory.includes(factory);
 }
 
 module.exports = { getConfig, useAvalanche, useBSC };
