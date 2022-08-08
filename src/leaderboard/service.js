@@ -1,7 +1,7 @@
 require('../common/network').useBSC();
 const express = require("express");
 const SyncModel = require("./sync");
-const { pairModel } = require('./model');
+const { pairModel, tokenModel } = require('./model');
 
 const syncModel = new SyncModel();
 
@@ -17,7 +17,9 @@ app.get('/api/:token', async (req, res) => {
 async function start(port) {
     const startMs = Date.now();
 
+    await tokenModel.warmup();
     await pairModel.warmup();
+    await syncModel.warmup();
     pairModel.runCrawler();
     syncModel.runCrawler();
 
