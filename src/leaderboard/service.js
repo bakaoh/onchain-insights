@@ -1,5 +1,5 @@
-require('../common/network').useAvalanche();
-const { pairModel, syncModel, swapModel } = require('./model');
+require('../common/network').useBSC();
+const { pairModel, syncModel } = require('./model');
 
 async function start() {
     const startMs = Date.now();
@@ -7,7 +7,6 @@ async function start() {
     await pairModel.warmup();
     pairModel.runCrawler();
     syncModel.runCrawler();
-    swapModel.runCrawler();
 
     console.log(`Service start (${Date.now() - startMs}ms)`)
 }

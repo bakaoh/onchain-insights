@@ -1,8 +1,32 @@
 const fs = require('fs');
 const LineByLine = require('line-by-line');
+const { web3, ContractAddress } = require("./network").getConfig();
+const CommonAbi = require('../abis/Common.json');
 
 const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
+// contract utils
+const common = new web3.eth.Contract(CommonAbi, ContractAddress.common);
+
+async function getTokenMetadata(addresses) {
+    const { names, symbols, decimals } = await common.methods.getMultiMetadata(addresses).call();
+    const rs = [];
+    for (let i = 0; i < addresses.length; i++) {
+        rs.push([addresses[i], names[i], symbols[i], decimals[i]]);
+    }
+    return rs;
+}
+
+async function checkIsContract(addresses) {
+    const areContracts = await common.methods.areContracts(addresses).call();
+    const rs = [];
+    for (let i = 0; i < addresses.length; i++) {
+        if (!areContracts[i]) rs.push(addresses[i]);
+    }
+    return rs;
+}
+
+// io utils
 function getLastLine(file, minLen = 3) {
     const lr = new LineByLine(file);
     let lastLine = "";
@@ -25,4 +49,18 @@ function getLastFiles(dir) {
     return files.sort((a, b) => parseInt(b) - parseInt(a));
 }
 
-module.exports = { sleep, getLastLine, getLastFile, getLastFiles }
+// format utils
+const toBN = (s) => web3.utils.toBN(s);
+const ZERO = toBN(0);
+
+const calcPrice = ([reserve0, reserve1]) => {
+    if (reserve0 == ZERO || reserve1 == ZERO) return 0;
+    return parseInt(reserve1.mul(toBN("100000000")).div(reserve0)) / 100000000;
+}
+
+module.exports = {
+    sleep,
+    getTokenMetadata, checkIsContract,
+    ZERO, toBN, calcPrice,
+    getLastLine, getLastFile, getLastFiles
+}

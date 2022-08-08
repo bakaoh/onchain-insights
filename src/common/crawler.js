@@ -3,26 +3,31 @@ const { web3 } = require('./network').getConfig();
 const { getLastLine, sleep } = require('./util');
 
 class Crawler {
-    constructor(name, topic, blockFile, onLog, batchSize = 50, onLogs = undefined) {
+    constructor(name, topic, onLog, batchSize = 50, onLogs = undefined) {
         this.name = name;
         this.topic = topic;
-        this.blockFile = blockFile;
         this.onLog = onLog;
         this.onLogs = onLogs;
         this.batchSize = batchSize;
+        this.blockFile = `db/${name}.block`;
     }
 
     async run() {
         const batchSize = this.batchSize;
         const lastLine = await getLastLine(this.blockFile);
         let fromBlock = lastLine ? parseInt(lastLine) + 1 : 0;
-        const latest = await web3.eth.getBlockNumber();
+        let latest = await web3.eth.getBlockNumber();
         console.log(`${this.name} start running from block ${fromBlock}, latest ${latest}`);
 
         this.blockWriter = fs.createWriteStream(this.blockFile, { flags: "a" });
         while (fromBlock < latest) {
             try {
-                fromBlock = await this.crawlLogs(fromBlock, fromBlock + batchSize - 1, 2000) + 1;
+                let toBlock = fromBlock + batchSize - 1;
+                if (toBlock >= latest) {
+                    latest = await web3.eth.getBlockNumber();
+                    if (toBlock >= latest) break;
+                }
+                fromBlock = await this.crawlLogs(fromBlock, toBlock, 1000) + 1;
             } catch (err) { console.log(`Error ${fromBlock}:`, err); await sleep(2000); }
         }
         if (fromBlock > latest) fromBlock = latest;
