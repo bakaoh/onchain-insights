@@ -33,9 +33,9 @@ class SyncModel {
         } else if (isUSD(token1)) {
             this.lastPrice[token0] = calcPrice([reserve0, reserve1]);
         } else if (token0 == ContractAddress.wrappedNative) {
-            this.lastPrice[token1] = calcPrice([reserve1, reserve0]) * getNativePrice();
+            this.lastPrice[token1] = calcPrice([reserve1, reserve0]) * this.getNativePrice();
         } else if (token1 == ContractAddress.wrappedNative) {
-            this.lastPrice[token0] = calcPrice([reserve0, reserve1]) * getNativePrice();
+            this.lastPrice[token0] = calcPrice([reserve0, reserve1]) * this.getNativePrice();
         }
         this.reserves[pair] = [reserve0, reserve1];
     }
