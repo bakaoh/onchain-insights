@@ -11,6 +11,8 @@ class SyncModel {
         this.volume = {};
         this.tx = {};
         this.reserves = {};
+
+        this.snapshot = {};
     }
 
     async runCrawler() {
@@ -21,6 +23,13 @@ class SyncModel {
         await this.crawler.run();
     }
 
+    newDay(block) {
+        this.snapshot[(block / 28800) % 7] = this.price;
+        this.price = {};
+        this.volume = {};
+        this.tx = {};
+    }
+
     async get(token) {
         const pools = pairModel.getPools(token);
         let liquidity = ZERO;
@@ -29,11 +38,16 @@ class SyncModel {
             if (pools[pair].token0 == token) liquidity = liquidity.add(this.reserves[pair][0]);
             else if (pools[pair].token1 == token) liquidity = liquidity.add(this.reserves[pair][1]);
         }
+        let daily = {};
+        for (let i = 0; i < 7; i++) {
+            if (this.snapshot[i]) daily[i] = this.snapshot[i][token];
+        }
         return {
             tx: this.tx[token],
             volume: this.volume[token].toString(),
             liquidity: liquidity.toString(),
-            price: this.price[token]
+            price: this.price[token],
+            daily
         };
     }
 
@@ -41,6 +55,7 @@ class SyncModel {
         if (reserve0 == '0' || reserve1 == '0') return;
         const tokens = pairModel.getTokens(pair);
         if (!tokens) return;
+        if (block % 28800 == 0) newDay(block);
 
         const { token0, token1 } = tokens;
         reserve0 = toBN(reserve0);
