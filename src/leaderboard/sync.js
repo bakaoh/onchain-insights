@@ -37,8 +37,8 @@ class SyncModel {
         const lastFiles = getLastFiles(`${DATA_FOLDER}/all`).slice(0, 3);
         for (let i = lastFiles.length - 1; i >= 0; i--) {
             const idx = parseInt(lastFiles[i]);
-            await this.partitioner.loadLog('all', idx, ([block, , , token0, token1, reserve0, reserve1]) => {
-                this.processEvent(block, token0, token1, reserve0, reserve1);
+            await this.partitioner.loadLog('all', idx, ([block, , , pair, token0, token1, reserve0, reserve1]) => {
+                this.processEvent(block, pair, token0, token1, reserve0, reserve1);
             });
         }
         console.log(`SyncModel warmup (${Date.now() - startMs}ms)`);
@@ -50,8 +50,8 @@ class SyncModel {
         if (!tokens) return;
         const { token0, token1 } = tokens;
         const idx = Math.floor(block / Partitioner.BPF);
-        this.partitioner.getWriter('all', idx).write(`${block},${txIdx},${logIdx},${token0},${token1},${reserve0},${reserve1}\n`);
-        this.processEvent(block, token0, token1, reserve0, reserve1);
+        this.partitioner.getWriter('all', idx).write(`${block},${txIdx},${logIdx},${pair},${token0},${token1},${reserve0},${reserve1}\n`);
+        this.processEvent(block, pair, token0, token1, reserve0, reserve1);
         this.tokenToFetch.add(token0);
         this.tokenToFetch.add(token1);
         if (this.tokenToFetch.size > 50) {
@@ -60,7 +60,7 @@ class SyncModel {
         }
     }
 
-    processEvent(block, token0, token1, reserve0, reserve1) {
+    processEvent(block, pair, token0, token1, reserve0, reserve1) {
         if (block % 28800 == 0) this.dailySnapshot(block);
         if (block % 1200 == 0) this.hourlySnapshot(block);
         reserve0 = toBN(reserve0);
