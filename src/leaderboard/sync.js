@@ -2,7 +2,7 @@ const Partitioner = require('../common/partitioner');
 const Crawler = require("../common/crawler");
 const { web3, ContractAddress, isUSD } = require('../common/network').getConfig();
 const { pairModel, tokenModel } = require('./model');
-const { calcPrice, toBN, ZERO, getLastFiles } = require('../common/util')
+const { calcPrice, toBN, ZERO, getLastFiles, getNumber } = require('../common/util')
 
 const SYNC_TOPIC = '0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1';
 const DATA_FOLDER = 'db/sync';
@@ -111,7 +111,8 @@ class SyncModel {
         return r ? calcPrice(r) : 0;
     }
 
-    async get(token) {
+    async getTokenInfo(token) {
+        const metadata = tokenModel.getToken(token);
         const pools = pairModel.getPools(token);
         let liquidity = ZERO;
         for (let pair in pools) {
@@ -119,17 +120,20 @@ class SyncModel {
             if (pools[pair].token0 == token) liquidity = liquidity.add(this.reserves[pair][0]);
             else if (pools[pair].token1 == token) liquidity = liquidity.add(this.reserves[pair][1]);
         }
-        let daily = {};
-        for (let i = 0; i < 7; i++) {
-            if (this.dailyPrice[i]) daily[i] = this.dailyPrice[i][token];
-        }
+        const curIdx = (block / 28800) % 7;
+        const p = this.price[token];
+        const p1h = this.lastHourPrice[token];
+        const p24h = this.dailyPrice[(curIdx + 6) % 7][token];
+        const p7d = this.dailyPrice[(curIdx + 1) % 7][token];
         return {
             tx: this.tx[token],
-            volume: this.volume[token].toString(),
-            liquidity: liquidity.toString(),
-            price: this.price[token],
-            lastHour: this.lastHourPrice[token],
-            daily
+            vol: getNumber(this.volume[token].toString()) * this.price[token],
+            lp: getNumber(liquidity.toString()) * this.price[token],
+            price: p,
+            '1h': ((p - p1h) * 100) / p,
+            '24h': ((p - p24h) * 100) / p,
+            '7d': ((p - p7d) * 100) / p,
+            ...metadata
         };
     }
 }

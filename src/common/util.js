@@ -58,9 +58,11 @@ const calcPrice = ([reserve0, reserve1]) => {
     return parseInt(reserve1.mul(toBN("100000000")).div(reserve0)) / 100000000;
 }
 
+const getNumber = (bn, n = 0, decimals = 18) => parseInt(bn.substr(0, bn.length + n - decimals) || '0') / (10 ** n);
+
 module.exports = {
     sleep,
     getTokenMetadata, checkIsContract,
-    ZERO, toBN, calcPrice,
+    ZERO, toBN, calcPrice, getNumber,
     getLastLine, getLastFile, getLastFiles
 }

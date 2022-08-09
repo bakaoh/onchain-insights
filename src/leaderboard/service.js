@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.get('/api/:token', async (req, res) => {
     const token = req.params.token;
-    const rs = await syncModel.get(token);
+    const rs = await syncModel.getTokenInfo(token);
     res.json(rs);
 })
 
