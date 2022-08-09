@@ -163,7 +163,7 @@ class SyncModel {
             all.push([token, orderByFunc(token)]);
         }
         all.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
-        return all.slice(0, 100).map(token => this.getTokenInfo(token));
+        return all.slice(0, 100).map(i => this.getTokenInfo(i[0]));
     }
 
     getTokenInfo(token) {

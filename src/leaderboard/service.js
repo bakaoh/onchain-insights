@@ -8,14 +8,8 @@ const syncModel = new SyncModel();
 const app = express();
 app.use(express.json());
 
-app.get('/api/info/:token', async (req, res) => {
-    const token = req.params.token;
-    const rs = syncModel.getTokenInfo(token);
-    res.json(rs);
-})
-
-app.get('/api/top/:orderby', async (req, res) => {
-    const orderBy = req.params.orderby;
+app.get('/api/v1/leaderboard', async (req, res) => {
+    const orderBy = req.query.orderby || "24h";
     const rs = await syncModel.getTopToken(orderBy);
     res.json(rs);
 })
@@ -34,5 +28,3 @@ async function start(port) {
 }
 
 start(9613);
-
-// curl http://localhost:9613/api/0xe0F94Ac5462997D2BC57287Ac3a3aE4C31345D66
