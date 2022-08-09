@@ -111,6 +111,26 @@ class SyncModel {
         return r ? calcPrice(r) : 0;
     }
 
+    async getTopTokenByLp() {
+        const getValue = (token) => {
+            const pools = pairModel.getPools(token);
+            let liquidity = ZERO;
+            for (let pair in pools) {
+                if (!this.reserves[pair]) continue;
+                if (pools[pair].token0 == token) liquidity = liquidity.add(this.reserves[pair][0]);
+                else if (pools[pair].token1 == token) liquidity = liquidity.add(this.reserves[pair][1]);
+            }
+            return getNumber(liquidity.toString()) * this.price[token];
+        }
+
+        let all = [];
+        for (let token in this.price) {
+            all.push([token, getValue(token)]);
+        }
+        all.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
+        return all.slice(0, 100);
+    }
+
     async getTokenInfo(token) {
         const metadata = tokenModel.getToken(token);
         const pools = pairModel.getPools(token);
@@ -127,8 +147,8 @@ class SyncModel {
         const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
         return {
             tx: this.tx[token],
-            vol: getNumber(this.volume[token].toString()) * this.price[token],
-            lp: getNumber(liquidity.toString()) * this.price[token],
+            vol: getNumber(this.volume[token].toString()) * p,
+            lp: getNumber(liquidity.toString()) * p,
             price: p,
             '1h': ((p - p1h) * 100) / p,
             '24h': ((p - p24h) * 100) / p,

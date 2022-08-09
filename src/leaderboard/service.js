@@ -8,9 +8,15 @@ const syncModel = new SyncModel();
 const app = express();
 app.use(express.json());
 
-app.get('/api/:token', async (req, res) => {
+app.get('/api/info/:token', async (req, res) => {
     const token = req.params.token;
     const rs = await syncModel.getTokenInfo(token);
+    res.json(rs);
+})
+
+app.get('/api/top/:orderby', async (req, res) => {
+    const orderBy = req.params.orderby;
+    const rs = await syncModel.getTopTokenByLp();
     res.json(rs);
 })
 
