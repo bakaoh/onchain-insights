@@ -169,7 +169,7 @@ class SyncModel {
         return all.slice(0, 100).map(token => this.getTokenInfo(token));
     }
 
-    async getTokenInfo(token) {
+    getTokenInfo(token) {
         const metadata = tokenModel.getToken(token);
         const p = this.price[token];
         const p1h = this.lastHourPrice[token];
