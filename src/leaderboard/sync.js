@@ -7,7 +7,10 @@ const { calcPrice, toBN, ZERO, getLastFiles, getNumber } = require('../common/ut
 const SYNC_TOPIC = '0x1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1';
 const DATA_FOLDER = 'db/sync';
 
-const isValidPairToken = (token) => isUSD(token) || token == ContractAddress.wrappedNative;
+const MIN_RESERVE = toBN("1000000000000000000");
+const isValidPair = (token, reserve) => {
+    return (isUSD(token) || token == ContractAddress.wrappedNative) && reserve.gt(MIN_RESERVE);
+}
 
 class SyncModel {
     constructor() {
@@ -113,20 +116,26 @@ class SyncModel {
         return r ? calcPrice(r) : 0;
     }
 
+    getLP(token) {
+        const pools = pairModel.getPools(token);
+        let liquidity = ZERO;
+        for (let pair in pools) {
+            if (!this.reserves[pair]) continue;
+            if (pools[pair].token0 == token && isValidPair(pools[pair].token1, this.reserves[pair][1])) liquidity = liquidity.add(this.reserves[pair][0]);
+            else if (pools[pair].token1 == token && isValidPair(pools[pair].token0, this.reserves[pair][0])) liquidity = liquidity.add(this.reserves[pair][1]);
+        }
+        return getNumber(liquidity.toString()) * this.price[token];
+    }
+
+    getVol(token) {
+        return getNumber((this.volume[token] || '0').toString()) * this.price[token];
+    }
+
     getOrderByFunc(orderBy) {
         const lastIdx = (this.lastDailySnapshot / 28800) % 7;
         switch (orderBy) {
-            case "lp": return (token) => {
-                const pools = pairModel.getPools(token);
-                let liquidity = ZERO;
-                for (let pair in pools) {
-                    if (!this.reserves[pair]) continue;
-                    if (pools[pair].token0 == token && isValidPairToken(pools[pair].token1)) liquidity = liquidity.add(this.reserves[pair][0]);
-                    else if (pools[pair].token1 == token && isValidPairToken(pools[pair].token0)) liquidity = liquidity.add(this.reserves[pair][1]);
-                }
-                return getNumber(liquidity.toString()) * this.price[token];
-            }
-            case "vol": return ((token) => getNumber(this.volume[token].toString()) * this.price[token]);
+            case "lp": return this.getLP;
+            case "vol": return this.getVol;
             case "tx": return ((token) => this.tx[token]);
             case "1h": return ((token) => (this.price[token] - this.lastHourPrice[token]) * 100 / this.price[token]);
             case "24h": return ((token) => (this.price[token] - this.dailyPrice[lastIdx][token]) * 100 / this.price[token]);
@@ -146,13 +155,6 @@ class SyncModel {
 
     async getTokenInfo(token) {
         const metadata = tokenModel.getToken(token);
-        const pools = pairModel.getPools(token);
-        let liquidity = ZERO;
-        for (let pair in pools) {
-            if (!this.reserves[pair]) continue;
-            if (pools[pair].token0 == token) liquidity = liquidity.add(this.reserves[pair][0]);
-            else if (pools[pair].token1 == token) liquidity = liquidity.add(this.reserves[pair][1]);
-        }
         const p = this.price[token];
         const p1h = this.lastHourPrice[token];
         const lastIdx = (this.lastDailySnapshot / 28800) % 7;
@@ -160,8 +162,8 @@ class SyncModel {
         const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
         return {
             tx: this.tx[token],
-            vol: getNumber(this.volume[token].toString()) * p,
-            lp: getNumber(liquidity.toString()) * p,
+            vol: this.getVol(token),
+            lp: this.getLP(token),
             price: p,
             '1h': ((p - p1h) * 100) / p,
             '24h': ((p - p24h) * 100) / p,
