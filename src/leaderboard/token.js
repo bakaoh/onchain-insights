@@ -12,7 +12,13 @@ class TokenModel {
 
     getToken(address) {
         if (this.token[address]) {
-            return { address, decimals: this.token[address][0], symbol: this.token[address][1], name: this.token[address][2] };
+            return {
+                address,
+                decimals: this.token[address][0],
+                symbol: this.token[address][1],
+                name: this.token[address][2],
+                logo: `https://assets-cdn.trustwallet.com/blockchains/smartchain/assets/${address}/logo.png`
+            };
         }
         return { address }
     }

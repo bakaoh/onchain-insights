@@ -1,3 +1,4 @@
+const LineByLine = require('line-by-line');
 const Partitioner = require('../common/partitioner');
 const Crawler = require("../common/crawler");
 const { web3, ContractAddress, isUSD } = require('../common/network').getConfig();
@@ -20,6 +21,7 @@ class SyncModel {
         this.volume = {};
         this.tx = {};
         this.reserves = {};
+        this.holder = {};
 
         this.lastDailySnapshot = 0;
         this.lastHourlySnapshot = 0;
@@ -38,6 +40,7 @@ class SyncModel {
     }
 
     async warmup() {
+        await this.loadHolders();
         const startMs = Date.now();
         const lastFiles = getLastFiles(`${DATA_FOLDER}/all`).slice(0, 3);
         for (let i = lastFiles.length - 1; i >= 0; i--) {
@@ -47,6 +50,17 @@ class SyncModel {
             });
         }
         console.log(`SyncModel warmup (${Date.now() - startMs}ms)`);
+    }
+
+    loadHolders() {
+        const lr = new LineByLine('db/holder.log');
+        lr.on('line', (line) => {
+            const [address, num] = line.split(',');
+            this.holder[address] = parseInt(num);
+        });
+        return new Promise((res, rej) => lr
+            .on('end', () => { console.log(`SyncModel load holders (${Date.now() - startMs}ms)`); res() })
+            .on('error', err => rej(err)));
     }
 
     async onSyncLog(block, txIdx, logIdx, pair, reserve0, reserve1) {
@@ -134,12 +148,13 @@ class SyncModel {
     getOrderByFunc(orderBy) {
         const lastIdx = (this.lastDailySnapshot / 28800) % 7;
         switch (orderBy) {
-            case "lp": return this.getLP;
-            case "vol": return this.getVol;
-            case "tx": return ((token) => this.tx[token]);
-            case "1h": return ((token) => (this.price[token] - this.lastHourPrice[token]) * 100 / this.price[token]);
-            case "24h": return ((token) => (this.price[token] - this.dailyPrice[lastIdx][token]) * 100 / this.price[token]);
-            case "7d": return ((token) => (this.price[token] - this.dailyPrice[(lastIdx + 1) % 7][token]) * 100 / this.price[token]);
+            case "lp": return (token) => this.getLP(token);
+            case "vol": return (token) => this.getVol(token);
+            case "tx": return (token) => this.tx[token];
+            case "holder": return (token) => this.holder[token];
+            case "1h": return (token) => (this.price[token] - this.lastHourPrice[token]) * 100 / this.price[token];
+            case "24h": return (token) => (this.price[token] - this.dailyPrice[lastIdx][token]) * 100 / this.price[token];
+            case "7d": return (token) => (this.price[token] - this.dailyPrice[(lastIdx + 1) % 7][token]) * 100 / this.price[token];
         }
     }
 
@@ -150,7 +165,7 @@ class SyncModel {
             all.push([token, orderByFunc(token)]);
         }
         all.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
-        return all.slice(0, 100);
+        return all.slice(0, 100).map(token => this.getTokenInfo(token));
     }
 
     async getTokenInfo(token) {
@@ -165,6 +180,7 @@ class SyncModel {
             vol: this.getVol(token),
             lp: this.getLP(token),
             price: p,
+            holder: this.holder[token],
             '1h': ((p - p1h) * 100) / p,
             '24h': ((p - p24h) * 100) / p,
             '7d': ((p - p7d) * 100) / p,
