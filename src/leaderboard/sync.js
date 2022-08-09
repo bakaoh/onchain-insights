@@ -53,6 +53,7 @@ class SyncModel {
     }
 
     loadHolders() {
+        const startMs = Date.now();
         const lr = new LineByLine('db/holder.log');
         lr.on('line', (line) => {
             const [address, num] = line.split(',');
