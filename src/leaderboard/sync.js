@@ -53,15 +53,12 @@ class SyncModel {
     }
 
     loadHolders() {
-        const startMs = Date.now();
         const lr = new LineByLine('db/holder.log');
         lr.on('line', (line) => {
             const [address, num] = line.split(',');
             this.holder[address] = parseInt(num);
         });
-        return new Promise((res, rej) => lr
-            .on('end', () => { console.log(`SyncModel load holders (${Date.now() - startMs}ms)`); res() })
-            .on('error', err => rej(err)));
+        return new Promise((res, rej) => lr.on('end', () => res()).on('error', err => rej(err)));
     }
 
     async onSyncLog(block, txIdx, logIdx, pair, reserve0, reserve1) {
@@ -176,15 +173,20 @@ class SyncModel {
         const lastIdx = (this.lastDailySnapshot / 28800) % 7;
         const p24h = this.dailyPrice[lastIdx][token];
         const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
+        const lp = this.getLP(token);
+        const recently = lp > 49900 && (this.lastDailySnapshot - pairModel.firstPool[token] < 7 * 28800)
+            ? new Date(Date.now() - (this.lastDailySnapshot - pairModel.firstPool[token]) * 3000)
+            : "N/A";
         return {
             tx: this.tx[token],
             vol: this.getVol(token),
-            lp: this.getLP(token),
+            lp,
             price: p,
             holder: this.holder[token],
             '1h': ((p - p1h) * 100) / p,
             '24h': ((p - p24h) * 100) / p,
             '7d': ((p - p7d) * 100) / p,
+            recently,
             ...metadata
         };
     }

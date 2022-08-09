@@ -13,6 +13,7 @@ class PairModel {
         this.writer = fs.createWriteStream(PAIR_DETAIL_FILE, opts);
         this.pools = {};
         this.pairs = {};
+        this.firstPool = {};
     }
 
     async runCrawler() {
@@ -51,6 +52,8 @@ class PairModel {
         this.pools[token0][pair] = { token0, token1, factory };
         if (!this.pools[token1]) this.pools[token1] = {};
         this.pools[token1][pair] = { token0, token1, factory };
+        if (!this.firstPool[token0]) this.firstPool[token0] = parseInt(block);
+        if (!this.firstPool[token1]) this.firstPool[token1] = parseInt(block);
     }
 
     writePairCreatedLog(block, txIdx, logIdx, factory, token0, token1, pair, idx) {
