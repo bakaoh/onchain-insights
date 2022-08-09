@@ -16,7 +16,7 @@ app.get('/api/info/:token', async (req, res) => {
 
 app.get('/api/top/:orderby', async (req, res) => {
     const orderBy = req.params.orderby;
-    const rs = await syncModel.getTopTokenByLp();
+    const rs = await syncModel.getTopToken(orderBy);
     res.json(rs);
 })
 
