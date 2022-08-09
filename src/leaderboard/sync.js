@@ -120,11 +120,11 @@ class SyncModel {
             if (pools[pair].token0 == token) liquidity = liquidity.add(this.reserves[pair][0]);
             else if (pools[pair].token1 == token) liquidity = liquidity.add(this.reserves[pair][1]);
         }
-        const curIdx = (block / 28800) % 7;
         const p = this.price[token];
         const p1h = this.lastHourPrice[token];
-        const p24h = this.dailyPrice[(curIdx + 6) % 7][token];
-        const p7d = this.dailyPrice[(curIdx + 1) % 7][token];
+        const lastIdx = (this.lastDailySnapshot / 28800) % 7;
+        const p24h = this.dailyPrice[lastIdx][token];
+        const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
         return {
             tx: this.tx[token],
             vol: getNumber(this.volume[token].toString()) * this.price[token],
