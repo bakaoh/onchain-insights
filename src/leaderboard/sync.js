@@ -24,8 +24,11 @@ class SyncModel {
         this.holder = {};
 
         this.lastDailySnapshot = 0;
-        this.lastHourlySnapshot = 0;
         this.dailyPrice = {};
+        this.dailyVolume = {};
+        this.dailyTx = {};
+
+        this.lastHourlySnapshot = 0;
         this.lastHourPrice = {};
 
         this.tokenToFetch = new Set();
@@ -46,7 +49,7 @@ class SyncModel {
         for (let i = lastFiles.length - 1; i >= 0; i--) {
             const idx = parseInt(lastFiles[i]);
             await this.partitioner.loadLog('all', idx, ([block, , , pair, token0, token1, reserve0, reserve1]) => {
-                this.processEvent(block, pair, token0, token1, reserve0, reserve1);
+                this.processEvent(block, pair, token0, token1, reserve0, reserve1, true);
             });
         }
         console.log(`SyncModel warmup (${Date.now() - startMs}ms)`);
@@ -77,9 +80,9 @@ class SyncModel {
         }
     }
 
-    processEvent(block, pair, token0, token1, reserve0, reserve1) {
+    processEvent(block, pair, token0, token1, reserve0, reserve1, skipHourly = false) {
         if (block % 28800 == 0) this.dailySnapshot(block);
-        if (block % 1200 == 0) this.hourlySnapshot(block);
+        if (!skipHourly && block % 1200 == 0) this.hourlySnapshot(block);
         reserve0 = toBN(reserve0);
         reserve1 = toBN(reserve1);
 
@@ -97,9 +100,14 @@ class SyncModel {
         // volume
         if (this.reserves[pair]) {
             if (!this.volume[token0]) this.volume[token0] = ZERO;
-            this.volume[token0] = this.volume[token0].add(this.reserves[pair][0].sub(reserve0).abs());
             if (!this.volume[token1]) this.volume[token1] = ZERO;
-            this.volume[token1] = this.volume[token1].add(this.reserves[pair][1].sub(reserve1).abs());
+            const v0 = this.reserves[pair][0].sub(reserve0);
+            const v1 = this.reserves[pair][1].sub(reserve1);
+            if (v0.mul(v1).lt(ZERO)) { // trade tx
+                this.volume[token0] = this.volume[token0].add(v0.abs());
+                this.volume[token1] = this.volume[token1].add(v1.abs());
+            } else { // lp tx
+            }
         }
 
         // tx
@@ -109,10 +117,17 @@ class SyncModel {
         this.reserves[pair] = [reserve0, reserve1];
     }
 
+    lastDailyIdx() {
+        return (this.lastDailySnapshot / 28800) % 7;
+    }
+
     dailySnapshot(block) {
         if (this.lastDailySnapshot == block) return;
         this.lastDailySnapshot = block;
-        this.dailyPrice[(block / 28800) % 7] = { ...this.price };
+        const lastIdx = this.lastDailyIdx();
+        this.dailyPrice[lastIdx] = { ...this.price };
+        this.dailyVolume[lastIdx] = this.volume;
+        this.dailyTx[lastIdx] = this.tx;
         this.volume = {};
         this.tx = {};
     }
@@ -144,7 +159,7 @@ class SyncModel {
     }
 
     getOrderByFunc(orderBy) {
-        const lastIdx = (this.lastDailySnapshot / 28800) % 7;
+        const lastIdx = this.lastDailyIdx();
         switch (orderBy) {
             case "lp": return (token) => this.getLP(token);
             case "vol": return (token) => this.getVol(token);
@@ -170,7 +185,7 @@ class SyncModel {
         const metadata = tokenModel.getToken(token);
         const p = this.price[token];
         const p1h = this.lastHourPrice[token];
-        const lastIdx = (this.lastDailySnapshot / 28800) % 7;
+        const lastIdx = this.lastDailyIdx();
         const p24h = this.dailyPrice[lastIdx][token];
         const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
         const lp = this.getLP(token);
