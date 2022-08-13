@@ -20,8 +20,8 @@ async function start(port) {
     await tokenModel.warmup();
     await pairModel.warmup();
     await syncModel.warmup();
-    pairModel.runCrawler();
-    syncModel.runCrawler();
+    await pairModel.runCrawler();
+    await syncModel.runCrawler();
 
     app.listen(port);
     console.log(`Service start at port ${port} (${Date.now() - startMs}ms)`)

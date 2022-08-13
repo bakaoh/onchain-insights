@@ -36,7 +36,7 @@ class Crawler {
             try {
                 fromBlock = await this.crawlLogs(fromBlock) + 1;
             } catch (err) { console.log(`Error ${fromBlock}:`, err); }
-        }, 3000)
+        }, 6000)
     }
 
     async crawlLogs(fromBlock, toBlock = 'latest', sleepMs = 0) {
