@@ -17,6 +17,15 @@ module.exports = {
       max_memory_restart: "2000M",
       watch: false,
       time: true
+    },
+    {
+      name: "proxy",
+      script: "src/leaderboard/proxy.js",
+      instances: 1,
+      autorestart: true,
+      max_memory_restart: "2000M",
+      watch: false,
+      time: true
     }
   ]
 };
