@@ -13,6 +13,41 @@ const isValidPair = (token, reserve) => {
     return (isUSD(token) || token == ContractAddress.wrappedNative) && reserve.gt(MIN_RESERVE);
 }
 
+const check0 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
+    return (
+        (Date.now() - firstPool > 259200000) &&
+        (tx > 1.3 * dailyTx[0]) &&
+        (lp > 50000) &&
+        (volume > 1.3 * dailyVolume[0]) &&
+        (price < 1.3 * dailyPrice[0])
+    )
+}
+const check1 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
+    return (
+        (lp > 50000) &&
+        (volume > 1.3 * (dailyVolume[0] + dailyVolume[1] + dailyVolume[2]) / 3) &&
+        (price < 1.3 * dailyPrice[0])
+    )
+}
+const check2 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
+    return (
+        (lp > 200000) &&
+        (volume > 1.3 * (dailyVolume[0] + dailyVolume[1] + dailyVolume[2] + dailyVolume[3] + dailyVolume[4] + dailyVolume[5] + dailyVolume[6]) / 7) &&
+        (price > 1.1 * (dailyPrice[0] + dailyPrice[1] + dailyPrice[2] + dailyPrice[3] + dailyPrice[4] + dailyPrice[5] + dailyPrice[6]) / 7)
+    )
+}
+
+const check4 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
+    return (
+        (Date.now() - firstPool < 86400000) &&
+        (lp > 50000) &&
+        (volume > 50000) &&
+        (holder > 50)
+    )
+}
+
+const Bots = [check0, check1, check2, check4];
+
 class SyncModel {
     constructor() {
         this.partitioner = new Partitioner(DATA_FOLDER);
@@ -23,6 +58,7 @@ class SyncModel {
         this.reserves = {};
         this.holder = {};
 
+        this.lastDailySnapshotTs = 0;
         this.lastDailySnapshot = 0;
         this.dailyPrice = {};
         this.dailyVolume = {};
@@ -80,9 +116,34 @@ class SyncModel {
         }
     }
 
-    processEvent(block, pair, token0, token1, reserve0, reserve1, skipHourly = false) {
+    botcheck(token) {
+        if (isUSD(token)) return;
+        if (token == ContractAddress.wrappedNative) return;
+        const lp = this.getLP(token);
+        const holder = this.holder[token];
+        const volume = this.getVol(token);
+        const dailyVolume = [];
+        const price = this.price[token];
+        const dailyPrice = [];
+        const tx = this.tx[token];
+        const dailyTx = []
+        const firstPool = this.getFirstPool(token);
+        const lastIdx = this.lastDailyIdx();
+        for (let i = 0; i < 7; i++) {
+            dailyVolume.push(this.dailyVolume[(lastIdx + i) % 7][token]);
+            dailyPrice.push(this.dailyPrice[(lastIdx + i) % 7][token]);
+            dailyTx.push(this.dailyTx[(lastIdx + i) % 7][token]);
+        }
+        const rs = [];
+        for (let bot of Bots) {
+            rs.push(bot(lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool));
+        }
+        console.log(`BotCheck ${rs} (${token},${lp},${holder},${volume},${dailyVolume},${price},${dailyPrice},${tx},${dailyTx},${firstPool})`);
+    }
+
+    processEvent(block, pair, token0, token1, reserve0, reserve1, isWarmingUp = false) {
         if (block % 28800 == 0) this.dailySnapshot(block);
-        if (!skipHourly && block % 1200 == 0) this.hourlySnapshot(block);
+        if (!isWarmingUp && block % 1200 == 0) this.hourlySnapshot(block);
         reserve0 = toBN(reserve0);
         reserve1 = toBN(reserve1);
 
@@ -115,6 +176,12 @@ class SyncModel {
         this.tx[token1] = (this.tx[token1] || 0) + 1;
 
         this.reserves[pair] = [reserve0, reserve1];
+
+        // run bot check
+        if (!isWarmingUp) {
+            this.botcheck(token0);
+            this.botcheck(token1);
+        }
     }
 
     lastDailyIdx() {
@@ -134,6 +201,7 @@ class SyncModel {
 
     hourlySnapshot(block) {
         if (this.lastHourlySnapshot == block) return;
+        this.lastDailySnapshotTs = Date.now();
         this.lastHourlySnapshot = block;
         this.lastHourPrice = { ...this.price };
     }
@@ -156,6 +224,10 @@ class SyncModel {
 
     getVol(token) {
         return getNumber((this.volume[token] || '0').toString()) * this.price[token];
+    }
+
+    getFirstPool(token) {
+        return this.lastDailySnapshotTs - (this.lastDailySnapshot - pairModel.firstPool[token]) * 3000;
     }
 
     getOrderByFunc(orderBy) {
@@ -190,7 +262,7 @@ class SyncModel {
         const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
         const lp = this.getLP(token);
         const recently = lp > 49900 && (this.lastDailySnapshot - pairModel.firstPool[token] < 7 * 28800)
-            ? new Date(Date.now() - (this.lastDailySnapshot - pairModel.firstPool[token]) * 3000)
+            ? new Date(this.getFirstPool(token))
             : "N/A";
         return {
             tx: this.tx[token],
