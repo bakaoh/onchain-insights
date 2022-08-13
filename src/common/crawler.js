@@ -1,5 +1,5 @@
 const fs = require('fs');
-const { web3 } = require('./network').getConfig();
+const { web3, getBlockNumber } = require('./network').getConfig();
 const { getLastLine, sleep } = require('./util');
 
 class Crawler {
@@ -16,7 +16,7 @@ class Crawler {
         const batchSize = this.batchSize;
         const lastLine = await getLastLine(this.blockFile);
         let fromBlock = lastLine ? parseInt(lastLine) + 1 : 0;
-        let latest = await web3.eth.getBlockNumber();
+        let latest = await getBlockNumber();
         console.log(`${this.name} start running from block ${fromBlock}, latest ${latest}`);
 
         this.blockWriter = fs.createWriteStream(this.blockFile, { flags: "a" });
@@ -24,7 +24,7 @@ class Crawler {
             try {
                 let toBlock = fromBlock + batchSize - 1;
                 if (toBlock >= latest) {
-                    latest = await web3.eth.getBlockNumber();
+                    latest = await getBlockNumber();
                     if (toBlock >= latest) break;
                 }
                 fromBlock = await this.crawlLogs(fromBlock, toBlock, 1000) + 1;
@@ -64,7 +64,7 @@ class Crawler {
             this.blockWriter.write(`${fromBlock}\n`);
             lastBlock = toBlock;
         } else {
-            lastBlock = await web3.eth.getBlockNumber() - 1;
+            lastBlock = await getBlockNumber() - 1;
         }
 
         const ms = Date.now() - startMs;

@@ -4,7 +4,16 @@ let current = {
     web3: undefined,
     isSupportFactory: () => true,
     isUSD: () => false,
-    ContractAddress: {}
+    ContractAddress: {},
+    cacheBlockNumber: 0,
+    lastCacheTs: 0,
+    getBlockNumber: async () => {
+        if (current.lastCacheTs < Date.now() + 3000) {
+            current.cacheBlockNumber = await current.web3.eth.getBlockNumber();
+            current.lastCacheTs = Date.now();
+        }
+        return current.cacheBlockNumber;
+    }
 }
 
 const getConfig = () => current;
@@ -35,7 +44,7 @@ const useBSC = () => {
         '0x0841BD0B734E4F5853f0dD8d7Ea041c241fb0Da6', // Apeswap
         '0x858E3312ed3A876947EA49d572A7C42DE08af7EE', // Biswap
     ]
-    current.web3 = new Web3("https://bsc-dataseed3.defibit.io");
+    current.web3 = new Web3("https://bsc-dataseed.binance.org");
     current.ContractAddress.common = '0x3E694aCF551425A657A7F974ab6F876E3b0822Fe';
     current.ContractAddress.wrappedNative = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
     current.ContractAddress.nativePricePair = '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16'; // Pancake WBNB-BUSD 
