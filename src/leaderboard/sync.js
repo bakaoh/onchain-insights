@@ -131,13 +131,12 @@ class SyncModel {
             if (v0.mul(v1).lt(ZERO)) { // trade tx
                 this.volume[token0] = this.volume[token0].add(v0.abs());
                 this.volume[token1] = this.volume[token1].add(v1.abs());
-                if (v0.gt(ZERO)) {
+                if (v0.gt(ZERO)) { // sell 0 buy 1
                     this.sellTx[token0] = (this.sellTx[token0] || 0) + 1;
-                } else {
+                } else { // sell 1 buy 0
                     this.sellTx[token1] = (this.sellTx[token1] || 0) + 1;
                 }
-            } else { // lp tx
-            }
+            } else { } // lp tx
         }
 
         // tx

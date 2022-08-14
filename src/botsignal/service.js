@@ -45,12 +45,12 @@ const check3 = ({ dailyHolder, volume, dailyVolume, price, dailyPrice, firstPool
         (dailyPrice[1] > 1.03 * dailyPrice[2])
     )
 }
-const check4 = ({ lp, holder, volume, sellTx, firstPool }) => {
+const check4 = ({ lp, buyHolder, volume, sellTx, firstPool }) => {
     return (
         (Date.now() - firstPool < 86400000) &&
         (lp > 50000) &&
         (volume > 50000) &&
-        (holder > 50) &&
+        (buyHolder > 50) &&
         (sellTx > 3)
     )
 }
@@ -70,6 +70,7 @@ app.post('/bot/check', async (req, res) => {
     if (!lastSignal[token] || Date.now() - lastSignal[token] > 43200000) {
         const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
         data.dailyHolder = holders.reverse().map(e => e.num);
+        data.buyHolder = (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data;
         for (let id in Bots) {
             if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
