@@ -60,7 +60,7 @@ app.post('/bot/check', async (req, res) => {
     const data = req.body;
     const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${data.token}`)).data;
     data.dailyHolder = holders.reverse().map(e => e.num);
-    console.log(`BotCheck [${id}] (${JSON.stringify(data)})`);
+    console.log(`BotCheck run (${JSON.stringify(data)})`);
     for (let id in Bots) {
         if (Bots[id](data)) {
             console.log(`BotCheck [${id}] (${JSON.stringify(data)})`);
