@@ -204,8 +204,8 @@ class SyncModel {
         switch (orderBy) {
             case "lp": return (token) => this.getLP(token);
             case "vol": return (token) => this.getVol(token);
-            case "tx": return (token) => this.tx[token];
-            case "holder": return (token) => this.holder[token];
+            case "tx": return (token) => this.tx[token] || 0;
+            case "holder": return (token) => this.holder[token] || 0;
             case "1h": return (token) => (this.price[token] - this.lastHourPrice[token]) * 100 / this.price[token];
             case "24h": return (token) => (this.price[token] - this.dailyPrice[lastIdx][token]) * 100 / this.price[token];
             case "7d": return (token) => (this.price[token] - this.dailyPrice[(lastIdx + 1) % 7][token]) * 100 / this.price[token];
