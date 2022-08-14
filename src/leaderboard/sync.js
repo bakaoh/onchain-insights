@@ -1,6 +1,7 @@
 const LineByLine = require('line-by-line');
 const Partitioner = require('../common/partitioner');
 const Crawler = require("../common/crawler");
+const axios = require("axios");
 const { web3, ContractAddress, isUSD } = require('../common/network').getConfig();
 const { pairModel, tokenModel } = require('./model');
 const { calcPrice, toBN, ZERO, getLastFiles, getNumber } = require('../common/util')
@@ -13,40 +14,6 @@ const isValidPair = (token, reserve) => {
     return (isUSD(token) || token == ContractAddress.wrappedNative) && reserve.gt(MIN_RESERVE);
 }
 
-const check0 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
-    return (
-        (Date.now() - firstPool > 259200000) &&
-        (tx > 1.3 * dailyTx[0]) &&
-        (lp > 50000) &&
-        (volume > 1.3 * dailyVolume[0]) &&
-        (price < 1.3 * dailyPrice[0])
-    )
-}
-const check1 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
-    return (
-        (lp > 50000) &&
-        (volume > 1.3 * (dailyVolume[0] + dailyVolume[1] + dailyVolume[2]) / 3) &&
-        (price < 1.3 * dailyPrice[0])
-    )
-}
-const check2 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
-    return (
-        (lp > 200000) &&
-        (volume > 1.3 * (dailyVolume[0] + dailyVolume[1] + dailyVolume[2] + dailyVolume[3] + dailyVolume[4] + dailyVolume[5] + dailyVolume[6]) / 7) &&
-        (price > 1.1 * (dailyPrice[0] + dailyPrice[1] + dailyPrice[2] + dailyPrice[3] + dailyPrice[4] + dailyPrice[5] + dailyPrice[6]) / 7)
-    )
-}
-const check4 = (lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool) => {
-    return (
-        (Date.now() - firstPool < 86400000) &&
-        (lp > 50000) &&
-        (volume > 50000) &&
-        (holder > 50)
-    )
-}
-
-const Bots = [check0, check1, check2, check4];
-
 class SyncModel {
     constructor() {
         this.partitioner = new Partitioner(DATA_FOLDER);
@@ -56,6 +23,7 @@ class SyncModel {
         this.tx = {};
         this.reserves = {};
         this.holder = {};
+        this.sellTx = {};
 
         this.lastDailySnapshotTs = 0;
         this.lastDailySnapshot = 0;
@@ -125,6 +93,7 @@ class SyncModel {
         const price = this.price[token];
         const dailyPrice = [];
         const tx = this.tx[token];
+        const sellTx = this.sellTx[token];
         const dailyTx = []
         const firstPool = this.getFirstPool(token);
         const lastIdx = this.lastDailyIdx();
@@ -133,11 +102,7 @@ class SyncModel {
             dailyPrice.push(this.dailyPrice[(lastIdx + i) % 7][token] || price);
             dailyTx.push(this.dailyTx[(lastIdx + i) % 7][token] || 0);
         }
-        for (let id in Bots) {
-            if (Bots[id](lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool)) {
-                console.log(`BotCheck [${id}] (${token},${lp},${holder},${volume},[${dailyVolume}],${price},[${dailyPrice}],${tx},[${dailyTx}],${firstPool})`);
-            }
-        }
+        axios.post("http://localhost:9615/bot/check", { token, lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, sellTx, firstPool }).catch(err => { });
     }
 
     processEvent(block, pair, token0, token1, reserve0, reserve1, isWarmingUp = false) {
@@ -166,6 +131,11 @@ class SyncModel {
             if (v0.mul(v1).lt(ZERO)) { // trade tx
                 this.volume[token0] = this.volume[token0].add(v0.abs());
                 this.volume[token1] = this.volume[token1].add(v1.abs());
+                if (v0.gt(ZERO)) {
+                    this.sellTx[token0] = (this.sellTx[token0] || 0) + 1;
+                } else {
+                    this.sellTx[token1] = (this.sellTx[token1] || 0) + 1;
+                }
             } else { // lp tx
             }
         }
