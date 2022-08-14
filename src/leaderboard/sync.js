@@ -98,7 +98,7 @@ class SyncModel {
         const firstPool = this.getFirstPool(token);
         const lastIdx = this.lastDailyIdx();
         for (let i = 0; i < 7; i++) {
-            dailyVolume.push(this.dailyVolume[(lastIdx + i) % 7][token] || 0);
+            dailyVolume.push(getNumber((this.dailyVolume[(lastIdx + i) % 7][token] || '0').toString()) * this.price[token])
             dailyPrice.push(this.dailyPrice[(lastIdx + i) % 7][token] || price);
             dailyTx.push(this.dailyTx[(lastIdx + i) % 7][token] || 0);
         }
@@ -234,11 +234,11 @@ class SyncModel {
             ? new Date(this.getFirstPool(token))
             : "N/A";
         return {
-            tx: this.tx[token],
+            tx: this.tx[token] || 0,
             vol: this.getVol(token),
             lp,
             price: p,
-            holder: this.holder[token],
+            holder: this.holder[token] || 0,
             '1h': ((p - p1h) * 100) / p,
             '24h': ((p - p24h) * 100) / p,
             '7d': ((p - p7d) * 100) / p,

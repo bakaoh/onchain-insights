@@ -59,9 +59,10 @@ const Bots = [check0, check1, check2, check3, check4];
 app.post('/bot/check', async (req, res) => {
     const data = req.body;
     const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${data.token}`)).data;
-    const dailyHolder = holders.reverse().map(e => e.num);
+    data.dailyHolder = holders.reverse().map(e => e.num);
+    console.log(`BotCheck [${id}] (${JSON.stringify(data)})`);
     for (let id in Bots) {
-        if (Bots[id]({ dailyHolder, ...data })) {
+        if (Bots[id](data)) {
             console.log(`BotCheck [${id}] (${JSON.stringify(data)})`);
         }
     }
