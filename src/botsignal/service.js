@@ -47,7 +47,7 @@ app.post('/bot/check', async (req, res) => {
             console.log(`BotCheck [${id}] (${JSON.stringify(data)})`);
         }
     }
-    res.json(rs);
+    res.json({ "status": "ok" });
 })
 
 async function start(port) {
