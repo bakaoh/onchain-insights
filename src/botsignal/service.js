@@ -1,4 +1,5 @@
 require('../common/network').useBSC();
+const fs = require('fs');
 const express = require("express");
 const axios = require("axios");
 const app = express();
@@ -54,15 +55,26 @@ const check4 = ({ lp, holder, volume, sellTx, firstPool }) => {
     )
 }
 
-const Bots = [check0, check1, check2, check3, check4];
+const Bots = {
+    bot0: { checker: check0, logger: fs.createWriteStream(`logs/bot0.log`, { flags: "a" }) },
+    bot1: { checker: check1, logger: fs.createWriteStream(`logs/bot1.log`, { flags: "a" }) },
+    bot2: { checker: check2, logger: fs.createWriteStream(`logs/bot2.log`, { flags: "a" }) },
+    bot3: { checker: check3, logger: fs.createWriteStream(`logs/bot3.log`, { flags: "a" }) },
+    bot4: { checker: check4, logger: fs.createWriteStream(`logs/bot4.log`, { flags: "a" }) }
+};
+const lastSignal = {};
 
 app.post('/bot/check', async (req, res) => {
     const data = req.body;
-    const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${data.token}`)).data;
-    data.dailyHolder = holders.reverse().map(e => e.num);
-    for (let id in Bots) {
-        if (Bots[id](data)) {
-            console.log(`BotCheck [${id}] (${JSON.stringify(data)})`);
+    const { token } = data;
+    if (!lastSignal[token] || Date.now() - lastSignal[token] > 43200000) {
+        const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
+        data.dailyHolder = holders.reverse().map(e => e.num);
+        for (let id in Bots) {
+            if (Bots[id].checker(data)) {
+                Bots[id].logger.write(`${JSON.stringify(data)}\n`);
+                lastSignal[token] = Date.now();
+            }
         }
     }
     res.json({ "status": "ok" });
