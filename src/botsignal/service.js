@@ -70,7 +70,7 @@ app.post('/bot/check', async (req, res) => {
     if (!lastSignal[token] || Date.now() - lastSignal[token] > 43200000) {
         const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
         data.dailyHolder = holders.reverse().map(e => e.num);
-        data.buyHolder = (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data;
+        data.buyHolder = (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
         for (let id in Bots) {
             if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
