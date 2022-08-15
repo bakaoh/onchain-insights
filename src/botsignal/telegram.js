@@ -1,6 +1,8 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Storage = require("./storage");
 
+const EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+
 class Controller {
     constructor(telegramToken) {
         this.storage = new Storage("db/controller.json");
@@ -13,36 +15,36 @@ class Controller {
 
     async printSetting(chatId) {
         const setting = this.storage.get(chatId);
-        let html = `**BOT LIST**`
+        let html = `<b>BOT settings</b>`
         for (let i = 0; i < setting.length; i++) {
-            html += `\n- Bot ${i}: ${setting[i] ? 'enabled' : 'disabled'}`
+            html += `\n${EMOJI[i]} ${setting[i] ? 'enabled' : 'disabled'}`
         }
-        return this.bot.sendMessage(chatId, html, { parse_mode: "Markdown" }).catch(console.log);
+        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
     async printInfo(chatId) {
-        let html = `**BOT CONFIG**
-- Bot 0: Đã tạo pool đầu tiên >3 ngày, TXNS >30% ngày trước đó, Volume > 30% ngày trước đó, Liquidity Pool  >50k, giá Tăng <30% (so với ngày trước đó)
-- Bot 1: Volume > 30% so với volume trung bình của 3 ngày trước đó, Liquidity Pool >50k, giá Tăng <30% (so với ngày trước đó)
-- Bot 2: Volume > 30% so với volume trung bình của 7 ngày trước đó, Liquidity Pool >200k, giá Tăng >10% (so với giá trung bình 7 ngày trước đó)
-- Bot 3: Đã tạo pool >3 ngày, Holder tăng >5% liên tục 3 ngày đều tăng, Volume tăng >10% liên tục 3 ngày, giá tăng >3% liên tục 3 ngày
-- Bot 4: Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo pool đầu tiên >50k, Holder >50 (Holder mua từ lệnh swap), >3 lệnh sell (3 ví khác nhau, khác volume nhau)`
-        return this.bot.sendMessage(chatId, html, { parse_mode: "Markdown" }).catch(console.log);
+        let html = `<b>BOT information</b>
+${EMOJI[0]} Đã tạo pool đầu tiên >3 ngày, TXNS >30% ngày trước đó, Volume > 30% ngày trước đó, Liquidity Pool  >50k, giá Tăng <30% (so với ngày trước đó)
+${EMOJI[1]} Volume > 30% so với volume trung bình của 3 ngày trước đó, Liquidity Pool >50k, giá Tăng <30% (so với ngày trước đó)
+${EMOJI[2]} Volume > 30% so với volume trung bình của 7 ngày trước đó, Liquidity Pool >200k, giá Tăng >10% (so với giá trung bình 7 ngày trước đó)
+${EMOJI[3]} Đã tạo pool >3 ngày, Holder tăng >5% liên tục 3 ngày đều tăng, Volume tăng >10% liên tục 3 ngày, giá tăng >3% liên tục 3 ngày
+${EMOJI[4]} Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo pool đầu tiên >50k, Holder >50 (Holder mua từ lệnh swap), >3 lệnh sell (3 ví khác nhau, khác volume nhau)`
+        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
     async sendSignal(id, data) {
-        let html = `**BOT ${id} SIGNAL**`
-        html += `\n- Token: ${data.name} (${data.symbol})`
-        html += `\n- Address: ${data.token}`
-        html += `\n- Price: $${data.price}`
-        html += `\n- Total LP: $${data.lp}`
-        html += `\n- Volume (24h): $${data.volume}`
-        html += `\n- Tx Count (24h): ${data.tx}`
-        html += `\n- First Pool: ${new Date(data.firstPool).toGMTString()}`
+        let html = `<b>BOT ${EMOJI[id]} Signal</b>
+📛 Token: ${data.name} (${data.symbol})
+〽️ Address: ${data.token}
+📈 Price: $${data.price}
+📢 Volume (24h): $${data.volume}
+🚀 Number of Tx (24h): ${data.tx}
+💰 Liquidity: $${data.lp}
+📅 First Pool: ${new Date(data.firstPool).toGMTString()}`
         const all = this.storage.all();
         for (let chatId in all) {
             if (all[chatId][id]) {
-                await this.bot.sendMessage(chatId, html, { parse_mode: "Markdown" }).catch(console.log);
+                await this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
             }
         }
     }
