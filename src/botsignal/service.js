@@ -72,20 +72,26 @@ const lastSignal = {};
 app.post('/bot/check', async (req, res) => {
     const data = req.body;
     const { token } = data;
-    if (!lastSignal[token] || Date.now() - lastSignal[token] > 43200000) {
+    const last = lastSignal[token]
+    if (!last || Date.now() - last > 43200000) {
+        lastSignal[token] = Date.now();
+
         const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
         data.dailyHolder = holders.reverse().map(e => e.num);
         data.buyHolder = (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
         const metadata = (await axios.get(`http://10.148.0.39:9612/info/token?a=${token}`)).data[0];
         data.symbol = metadata.symbol;
         data.name = metadata.name;
+
+        let sendSignal = false;
         for (let id in Bots) {
             if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
-                lastSignal[token] = Date.now();
+                sendSignal = true;
                 await telegram.sendSignal(id.substr(3), data);
             }
         }
+        if (!sendSignal) lastSignal[token] = last;
     }
     res.json({ "status": "ok" });
 })

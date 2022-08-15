@@ -34,11 +34,12 @@ ${EMOJI[4]} Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo
 
     async sendSignal(id, data) {
         let html = `<b>BOT ${EMOJI[id]} Signal</b>
+
 📛 Token: ${data.name} (${data.symbol})
-〽️ Address: ${data.token}
+〽️ Address: <a href="https://dextrading.io/${data.token}">${data.token}</a>
 📈 Price: $${data.price}
 📢 Volume (24h): $${data.volume}
-🚀 Number of Tx (24h): ${data.tx}
+🚀 Tx Count (24h): ${data.tx}
 💰 Liquidity: $${data.lp}
 📅 First Pool: ${new Date(data.firstPool).toGMTString()}`
         const all = this.storage.all();
