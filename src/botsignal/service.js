@@ -76,6 +76,9 @@ app.post('/bot/check', async (req, res) => {
         const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
         data.dailyHolder = holders.reverse().map(e => e.num);
         data.buyHolder = (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
+        const metadata = (await axios.get(`http://10.148.0.39:9612/info/token?a=${token}`)).data[0];
+        data.symbol = metadata.symbol;
+        data.name = metadata.name;
         for (let id in Bots) {
             if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);

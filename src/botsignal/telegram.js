@@ -32,10 +32,11 @@ class Controller {
 
     async sendSignal(id, data) {
         let html = `**BOT ${id} SIGNAL**`
-        html += `\n- Token: ${data.token}`
+        html += `\n- Token: ${data.name} (${data.symbol})`
+        html += `\n- Address: ${data.token}`
         html += `\n- Price: $${data.price}`
         html += `\n- Total LP: $${data.lp}`
-        html += `\n- Volume (24h): ${data.volume}`
+        html += `\n- Volume (24h): $${data.volume}`
         html += `\n- Tx Count (24h): ${data.tx}`
         html += `\n- First Pool: ${new Date(data.firstPool).toGMTString()}`
         const all = this.storage.all();
