@@ -34,7 +34,9 @@ ${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool &lt 1day, Liquidity 
 📢 Volume (24h): $${data.volume}
 🚀 Tx Count (24h): ${data.tx}
 💰 Liquidity: $${data.lp}
-📅 First Pool: ${new Date(data.firstPool).toGMTString()}`
+📅 First Pool: ${new Date(data.firstPool).toGMTString()}
+✋ Holder: ${data.buyHolder ? data.buyHolder : data.dailyHolder[0]}
+`
         const all = this.storage.all();
         for (let chatId in all) {
             if (all[chatId][id]) {
