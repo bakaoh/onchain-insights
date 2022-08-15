@@ -17,11 +17,11 @@ class Controller {
         const setting = this.storage.get(chatId);
         let html = `<b>BOT Settings</b>
 
-${EMOJI[0]} ${setting[0] ? '👍' : '👎'} <pre>FirstPool > 3days, Tx > 1.3 Tx[day-1], Vol > 1.3 Vol[day-1], Liquidity > $50k, Price < 1.30 Price[day-1]</pre>
-${EMOJI[1]} ${setting[1] ? '👍' : '👎'} <pre>Vol > 1.3 Average[Vol[3day]], Liquidity > $50k, Price < 1.3 Price[day-1]</pre>
-${EMOJI[2]} ${setting[2] ? '👍' : '👎'} <pre>Vol > 1.3 Average[Vol[7day]], Liquidity > $200k, Price > 1.1 Average[Price[7day]]</pre>
-${EMOJI[3]} ${setting[3] ? '👍' : '👎'} <pre>FirstPool > 3days, Holder > 1.05 Holder[day-1] > 1.05 Holder[day-2], Vol > 1.1 Vol[day-1] > 1.1 Vol[day-2], Price > 1.03 Price[day-1] > 1.03 Price[day-2]</pre>
-${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <pre>FirstPool < 1day, Liquidity > $49.9k, Vol > $50k, BuyHolder > 50, SellTx > 3</pre>`
+${EMOJI[0]} ${setting[0] ? '👍' : '👎'} <code>FirstPool > 3days, Tx > 1.3 Tx[day-1], Vol > 1.3 Vol[day-1], Liquidity > $50k, Price < 1.30 Price[day-1]</code>
+${EMOJI[1]} ${setting[1] ? '👍' : '👎'} <code>Vol > 1.3 Average[Vol[3day]], Liquidity > $50k, Price < 1.3 Price[day-1]</code>
+${EMOJI[2]} ${setting[2] ? '👍' : '👎'} <code>Vol > 1.3 Average[Vol[7day]], Liquidity > $200k, Price > 1.1 Average[Price[7day]]</code>
+${EMOJI[3]} ${setting[3] ? '👍' : '👎'} <code>FirstPool > 3days, Holder > 1.05 Holder[day-1] > 1.05 Holder[day-2], Vol > 1.1 Vol[day-1] > 1.1 Vol[day-2], Price > 1.03 Price[day-1] > 1.03 Price[day-2]</code>
+${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool < 1day, Liquidity > $49.9k, Vol > $50k, BuyHolder > 50, SellTx > 3</code>`
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
