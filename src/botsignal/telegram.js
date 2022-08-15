@@ -15,7 +15,7 @@ class Controller {
         const setting = this.storage.get(chatId);
         let html = `**BOT LIST**`
         for (let i = 0; i < setting.length; i++) {
-            html += `- Bot ${i}: ${setting[i] ? 'enabled' : 'disabled'}`
+            html += `\n- Bot ${i}: ${setting[i] ? 'enabled' : 'disabled'}`
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "Markdown" }).catch(console.log);
     }
@@ -32,12 +32,12 @@ class Controller {
 
     async sendSignal(id, data) {
         let html = `**BOT ${id} SIGNAL**`
-        html += `- Token: ${data.token}`
-        html += `- Price: $${data.price}`
-        html += `- Total LP: $${data.lp}`
-        html += `- Volume (24h): ${data.volume}`
-        html += `- Tx Count (24h): ${data.tx}`
-        html += `- First Pool: ${new Date(data.firstPool).toGMTString()}`
+        html += `\n- Token: ${data.token}`
+        html += `\n- Price: $${data.price}`
+        html += `\n- Total LP: $${data.lp}`
+        html += `\n- Volume (24h): ${data.volume}`
+        html += `\n- Tx Count (24h): ${data.tx}`
+        html += `\n- First Pool: ${new Date(data.firstPool).toGMTString()}`
         const all = this.storage.all();
         for (let chatId in all) {
             if (all[chatId][id]) {
