@@ -6,11 +6,9 @@ class Controller {
         this.storage = new Storage("db/controller.json");
         this.bot = new TelegramBot(telegramToken, { polling: true });
         this.onMessage = this.onMessage.bind(this);
-        this.onCallback = this.onCallback.bind(this);
 
         this.bot.on("polling_error", console.log);
         this.bot.on("message", this.onMessage);
-        this.bot.on("callback_query", this.onCallback);
     }
 
     async printSetting(chatId) {
