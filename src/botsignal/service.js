@@ -80,7 +80,7 @@ app.post('/bot/check', async (req, res) => {
             if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
                 lastSignal[token] = Date.now();
-                await telegram.sendSignal(id, data);
+                await telegram.sendSignal(id.substr(3), data);
             }
         }
     }

@@ -15,18 +15,18 @@ class Controller {
         const setting = this.storage.get(chatId);
         let html = `<b>BOT LIST</b>`
         for (let i = 0; i < setting.length; i++) {
-            html += `- <b>Bot ${i}</b>: ${setting[i] ? 'enabled' : 'disabled'}`
+            html += `<br/>- <b>Bot ${i}</b>: ${setting[i] ? 'enabled' : 'disabled'}`
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
     async printInfo(chatId) {
         let html = `<b>BOT CONFIG</b>`
-        html += `- <b>Bot 0</b>: Đã tạo pool đầu tiên >3 ngày, TXNS >30% ngày trước đó, Volume > 30% ngày trước đó, Liquidity Pool  >50k, giá Tăng <30% (so với ngày trước đó)`
-        html += `- <b>Bot 1</b>: Volume > 30% so với volume trung bình của 3 ngày trước đó, Liquidity Pool >50k, giá Tăng <30% (so với ngày trước đó)`
-        html += `- <b>Bot 2</b>: Volume > 30% so với volume trung bình của 7 ngày trước đó, Liquidity Pool >200k, giá Tăng >10% (so với giá trung bình 7 ngày trước đó)`
-        html += `- <b>Bot 3</b>: Đã tạo pool >3 ngày, Holder tăng >5% liên tục 3 ngày đều tăng, Volume tăng >10% liên tục 3 ngày, giá tăng >3% liên tục 3 ngày`
-        html += `- <b>Bot 4</b>: Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo pool đầu tiên >50k, Holder >50 (Holder mua từ lệnh swap), >3 lệnh sell (3 ví khác nhau, khác volume nhau)`
+        html += `<br/>- <b>Bot 0</b>: Đã tạo pool đầu tiên >3 ngày, TXNS >30% ngày trước đó, Volume > 30% ngày trước đó, Liquidity Pool  >50k, giá Tăng <30% (so với ngày trước đó)`
+        html += `<br/>- <b>Bot 1</b>: Volume > 30% so với volume trung bình của 3 ngày trước đó, Liquidity Pool >50k, giá Tăng <30% (so với ngày trước đó)`
+        html += `<br/>- <b>Bot 2</b>: Volume > 30% so với volume trung bình của 7 ngày trước đó, Liquidity Pool >200k, giá Tăng >10% (so với giá trung bình 7 ngày trước đó)`
+        html += `<br/>- <b>Bot 3</b>: Đã tạo pool >3 ngày, Holder tăng >5% liên tục 3 ngày đều tăng, Volume tăng >10% liên tục 3 ngày, giá tăng >3% liên tục 3 ngày`
+        html += `<br/>- <b>Bot 4</b>: Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo pool đầu tiên >50k, Holder >50 (Holder mua từ lệnh swap), >3 lệnh sell (3 ví khác nhau, khác volume nhau)`
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
