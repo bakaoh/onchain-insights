@@ -1,3 +1,5 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 require('../common/network').useBSC();
 const fs = require('fs');
 const express = require("express");
