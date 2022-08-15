@@ -15,20 +15,13 @@ class Controller {
 
     async printSetting(chatId) {
         const setting = this.storage.get(chatId);
-        let html = `<b>BOT settings</b>`
-        for (let i = 0; i < setting.length; i++) {
-            html += `\n${EMOJI[i]} ${setting[i] ? 'enabled' : 'disabled'}`
-        }
-        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
-    }
+        let html = `<b>BOT Settings</b>
 
-    async printInfo(chatId) {
-        let html = `<b>BOT information</b>
-${EMOJI[0]} Đã tạo pool đầu tiên >3 ngày, TXNS >30% ngày trước đó, Volume > 30% ngày trước đó, Liquidity Pool  >50k, giá Tăng <30% (so với ngày trước đó)
-${EMOJI[1]} Volume > 30% so với volume trung bình của 3 ngày trước đó, Liquidity Pool >50k, giá Tăng <30% (so với ngày trước đó)
-${EMOJI[2]} Volume > 30% so với volume trung bình của 7 ngày trước đó, Liquidity Pool >200k, giá Tăng >10% (so với giá trung bình 7 ngày trước đó)
-${EMOJI[3]} Đã tạo pool >3 ngày, Holder tăng >5% liên tục 3 ngày đều tăng, Volume tăng >10% liên tục 3 ngày, giá tăng >3% liên tục 3 ngày
-${EMOJI[4]} Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo pool đầu tiên >50k, Holder >50 (Holder mua từ lệnh swap), >3 lệnh sell (3 ví khác nhau, khác volume nhau)`
+${EMOJI[0]} ${setting[0] ? '👍' : '👎'} FirstPool > 3days, Tx > 1.3 Tx[day-1], Vol > 1.3 Vol[day-1], Liquidity > $50k, Price < 1.30 Price[day-1]
+${EMOJI[1]} ${setting[1] ? '👍' : '👎'} Vol > 1.3 Average[Vol[3day]], Liquidity > $50k, Price < 1.3 Price[day-1]
+${EMOJI[2]} ${setting[2] ? '👍' : '👎'} Vol > 1.3 Average[Vol[7day]], Liquidity > $200k, Price > 1.1 Average[Price[7day]]
+${EMOJI[3]} ${setting[3] ? '👍' : '👎'} FirstPool > 3days, Holder > 1.05 Holder[day-1] > 1.05 Holder[day-2], Vol > 1.1 Vol[day-1] > 1.1 Vol[day-2], Price > 1.03 Price[day-1] > 1.03 Price[day-2]
+${EMOJI[4]} ${setting[4] ? '👍' : '👎'} FirstPool < 1day, Liquidity > $49.9k, Vol > $50k, BuyHolder > 50, SellTx > 3`
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
@@ -54,9 +47,7 @@ ${EMOJI[4]} Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo
         console.log(JSON.stringify(msg));
         const chatId = msg.chat.id;
         const userId = msg.from.id;
-        if (msg.text == "/info") {
-            return this.printInfo(chatId);
-        }
+
         if (msg.text == "/start") {
             this.storage.set(chatId, [false, false, true, true, true]);
         } else if (msg.text.startsWith("/enable")) {
@@ -69,7 +60,8 @@ ${EMOJI[4]} Token tạo pool <24h, Liquidity Pool >49,9k, Volume từ lúc tạo
             const cur = this.storage.get(chatId);
             cur[id] = false;
             this.storage.set(chatId, cur);
-        }
+        } else if (msg.text == "/info") {
+        } else return;
         return this.printSetting(chatId);
     }
 }
