@@ -3,6 +3,10 @@ const fs = require('fs');
 const express = require("express");
 const axios = require("axios");
 const app = express();
+const Controller = require("./telegram");
+
+const telegram = new Controller(process.env.TELEGRAM_TOKEN);
+
 app.use(express.json());
 
 const average3 = (d) => (d[0] + d[1] + d[2]) / 3;
@@ -75,6 +79,7 @@ app.post('/bot/check', async (req, res) => {
             if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
                 lastSignal[token] = Date.now();
+                await telegram.sendSignal(id, data);
             }
         }
     }
