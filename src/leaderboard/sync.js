@@ -238,10 +238,10 @@ class SyncModel {
     getTokenInfo(token) {
         const metadata = tokenModel.getToken(token);
         const p = this.price[token];
-        const p1h = this.lastHourPrice[token] || 0;
+        const p1h = this.lastHourPrice[token] || p;
         const lastIdx = this.lastDailyIdx();
-        const p24h = this.dailyPrice[lastIdx][token] || 0;
-        const p7d = this.dailyPrice[(lastIdx + 1) % 7][token] || 0;
+        const p24h = this.dailyPrice[lastIdx][token] || p;
+        const p7d = this.dailyPrice[(lastIdx + 1) % 7][token] || p;
         const lp = this.getLP(token);
         const recently = lp > 49900 && (this.lastDailySnapshot - pairModel.firstPool[token] < 7 * 28800)
             ? new Date(this.getFirstPool(token))
