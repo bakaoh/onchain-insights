@@ -217,11 +217,21 @@ class SyncModel {
         let all = [];
         for (let token in this.price) {
             if (this.price[token] == 0) continue;
+            if (this.getLP(token) < 1000) continue;
             const value = orderByFunc(token);
             if (value) all.push([token, value]);
         }
-        all.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
-        return all.slice(0, 100).map(i => this.getTokenInfo(i[0]));
+        const top = all.sort((a, b) => (a[1] > b[1]) ? -1 : 1).slice(0, 100);
+        const rs = [];
+        for (let i of top) {
+            const token = i[0];
+            if (!this.holder[token]) {
+                const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
+                this.holder[token] = holders.reverse()[0].num;
+            }
+            rs.push(this.getTokenInfo(token));
+        }
+        return rs;
     }
 
     getTokenInfo(token) {
