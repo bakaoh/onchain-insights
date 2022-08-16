@@ -229,7 +229,7 @@ class SyncModel {
                 const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
                 this.holder[token] = holders.length > 0 ? holders.reverse()[0].num : (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
             }
-            rs.push(this.getTokenInfo(token));
+            if (this.holder[token]) rs.push(this.getTokenInfo(token));
         }
         return rs;
     }
