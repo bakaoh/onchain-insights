@@ -91,6 +91,7 @@ class SyncModel {
         const volume = this.getVol(token);
         const dailyVolume = [];
         const price = this.price[token];
+        const price1h = this.lastHourPrice[token];
         const dailyPrice = [];
         const tx = this.tx[token];
         const sellTx = this.sellTx[token];
@@ -102,12 +103,12 @@ class SyncModel {
             dailyPrice.push(this.dailyPrice[(lastIdx + i) % 7][token] || price);
             dailyTx.push(this.dailyTx[(lastIdx + i) % 7][token] || 0);
         }
-        axios.post("http://localhost:9615/bot/check", { token, lp, holder, volume, dailyVolume, price, dailyPrice, tx, dailyTx, sellTx, firstPool }).catch(err => { });
+        axios.post("http://localhost:9615/bot/check", { token, lp, holder, volume, dailyVolume, price, price1h, dailyPrice, tx, dailyTx, sellTx, firstPool }).catch(err => { });
     }
 
     processEvent(block, pair, token0, token1, reserve0, reserve1, isWarmingUp = false) {
         if (block % 28800 == 0) this.dailySnapshot(block);
-        if (!isWarmingUp && block % 1200 == 0) this.hourlySnapshot(block);
+        if (block % 1200 == 0) this.hourlySnapshot(block);
         reserve0 = toBN(reserve0);
         reserve1 = toBN(reserve1);
 
@@ -205,9 +206,9 @@ class SyncModel {
             case "vol": return (token) => this.getVol(token);
             case "tx": return (token) => this.tx[token] || 0;
             case "holder": return (token) => this.holder[token] || 0;
-            case "1h": return (token) => (this.price[token] - this.lastHourPrice[token]) * 100 / this.price[token];
-            case "24h": return (token) => (this.price[token] - this.dailyPrice[lastIdx][token]) * 100 / this.price[token];
-            case "7d": return (token) => (this.price[token] - this.dailyPrice[(lastIdx + 1) % 7][token]) * 100 / this.price[token];
+            case "1h": return (token) => this.lastHourPrice[token] ? (this.price[token] - this.lastHourPrice[token]) * 100 / this.price[token] : 0;
+            case "24h": return (token) => this.dailyPrice[lastIdx][token] ? (this.price[token] - this.dailyPrice[lastIdx][token]) * 100 / this.price[token] : 0;
+            case "7d": return (token) => this.dailyPrice[(lastIdx + 1) % 7][token] ? (this.price[token] - this.dailyPrice[(lastIdx + 1) % 7][token]) * 100 / this.price[token] : 0;
         }
     }
 
@@ -215,7 +216,9 @@ class SyncModel {
         const orderByFunc = this.getOrderByFunc(orderBy);
         let all = [];
         for (let token in this.price) {
-            all.push([token, orderByFunc(token)]);
+            if (this.price[token] == 0) continue;
+            const value = orderByFunc(token);
+            if (value) all.push([token, value]);
         }
         all.sort((a, b) => (a[1] > b[1]) ? -1 : 1);
         return all.slice(0, 100).map(i => this.getTokenInfo(i[0]));
