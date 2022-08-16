@@ -221,7 +221,7 @@ class SyncModel {
             const value = orderByFunc(token);
             if (value) all.push([token, value]);
         }
-        const top = all.sort((a, b) => (a[1] > b[1]) ? -1 : 1).slice(0, 100);
+        const top = all.sort((a, b) => (a[1] > b[1]) ? -1 : 1).slice(0, 200);
         const rs = [];
         for (let i of top) {
             const token = i[0];
@@ -230,6 +230,7 @@ class SyncModel {
                 this.holder[token] = holders.length > 0 ? holders.reverse()[0].num : (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
             }
             if (this.holder[token]) rs.push(this.getTokenInfo(token));
+            if (rs.length >= 100) break;
         }
         return rs;
     }
@@ -237,10 +238,10 @@ class SyncModel {
     getTokenInfo(token) {
         const metadata = tokenModel.getToken(token);
         const p = this.price[token];
-        const p1h = this.lastHourPrice[token];
+        const p1h = this.lastHourPrice[token] || 0;
         const lastIdx = this.lastDailyIdx();
-        const p24h = this.dailyPrice[lastIdx][token];
-        const p7d = this.dailyPrice[(lastIdx + 1) % 7][token];
+        const p24h = this.dailyPrice[lastIdx][token] || 0;
+        const p7d = this.dailyPrice[(lastIdx + 1) % 7][token] || 0;
         const lp = this.getLP(token);
         const recently = lp > 49900 && (this.lastDailySnapshot - pairModel.firstPool[token] < 7 * 28800)
             ? new Date(this.getFirstPool(token))
