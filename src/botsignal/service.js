@@ -66,12 +66,12 @@ const check4 = ({ lp, buyHolder, volume, sellTx, firstPool }) => {
     )
 }
 
-const check5 = ({ cmc, cgk, lp, hourlyVolume, hourlyTx }) => {
+const check5 = ({ cmc, cgk, lp, volume24h, tx24h }) => {
     return (
         (cmc || cgk) &&
         (lp > 50000) &&
-        (get24h(hourlyVolume) > lp) &&
-        (get24h(hourlyTx) > 50)
+        (volume24h > lp) &&
+        (tx24h > 50)
     )
 }
 
@@ -92,17 +92,22 @@ app.post('/bot/check', async (req, res) => {
     if (!last || Date.now() - last > 43200000) {
         lastSignal[token] = Date.now();
 
-        data.dailyHolder = await api.getDailyHolder(token);
-        data.buyHolder = await api.getBuyHolder(token);
+        // data.dailyHolder = await api.getDailyHolder(token);
+        // data.buyHolder = await api.getBuyHolder(token);
         const metadata = await api.getMetaData(token);
-        data.symbol = metadata.symbol;
-        data.name = metadata.name;
-        data.cmc = api.cmc[token];
-        data.cgk = api.cgk[token];
-
+        const newdata = {};
+        newdata.token = data.token;
+        newdata.lp = data.lp;
+        newdata.symbol = metadata.symbol;
+        newdata.name = metadata.name;
+        newdata.cmc = api.cmc[token];
+        newdata.cgk = api.cgk[token];
+        newdata.volume24h = get24h(data.hourlyVolume);
+        newdata.tx24h = get24h(data.hourlyTx)
+        console.log(JSON.stringify(newdata));
         let sendSignal = false;
         for (let id in Bots) {
-            if (Bots[id].checker(data)) {
+            if (Bots[id].checker(newdata)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
                 sendSignal = true;
                 await telegram.sendSignal(id.substr(3), data);
