@@ -105,14 +105,14 @@ class SyncModel {
         const firstPool = this.getFirstPool(token);
         const dailyIdx = this.lastDailyIdx();
         for (let i = 0; i < 7; i++) {
-            dailyVolume.push(getNumber((this.dailyVolume[(dailyIdx + i) % 7][token] || '0').toString()) * this.price[token])
-            dailyPrice.push(this.dailyPrice[(dailyIdx + i) % 7][token] || price);
-            dailyTx.push(this.dailyTx[(dailyIdx + i) % 7][token] || 0);
+            dailyVolume.push(getNumber((this.dailyVolume[(dailyIdx + 7 - i) % 7][token] || '0').toString()) * this.price[token])
+            dailyPrice.push(this.dailyPrice[(dailyIdx + 7 - i) % 7][token] || price);
+            dailyTx.push(this.dailyTx[(dailyIdx + 7 - i) % 7][token] || 0);
         }
         const houryIdx = this.lastHourlyIdx();
         for (let i = 0; i < 48; i++) {
-            hourlyVolume.push(getNumber((this.hourlyVolume[(houryIdx + i) % 48][token] || '0').toString()) * this.price[token])
-            hourlyTx.push(this.hourlyTx[(houryIdx + i) % 48][token] || 0);
+            hourlyVolume.push(getNumber((this.hourlyVolume[(houryIdx + 48 - i) % 48][token] || '0').toString()) * this.price[token])
+            hourlyTx.push(this.hourlyTx[(houryIdx + 48 - i) % 48][token] || 0);
         }
         axios.post("http://localhost:9615/bot/check", { token, lp, holder, volume, dailyVolume, hourlyVolume, price, price1h, dailyPrice, tx, dailyTx, hourlyTx, sellTx, firstPool }).catch(err => { });
     }
