@@ -109,9 +109,9 @@ app.post('/bot/check', async (req, res) => {
         let sendSignal = false;
         for (let id in Bots) {
             if (Bots[id].checker(newdata)) {
-                Bots[id].logger.write(`${JSON.stringify(data)}\n`);
+                Bots[id].logger.write(`${JSON.stringify({ ...data, ...newdata })}\n`);
                 sendSignal = true;
-                await telegram.sendSignal(id.substr(3), data);
+                await telegram.sendSignal(id.substr(3), { ...data, ...newdata });
             }
         }
         if (!sendSignal) lastSignal[token] = last;
