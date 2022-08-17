@@ -18,7 +18,7 @@ class Api {
             { headers: { 'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY } });
         let count = 0;
         rs.data.data.forEach(i => {
-            if (i.platform.id == 1839) {
+            if (i.platform && i.platform.id == 1839) {
                 this.cmc[i.platfrom.token_address] = i;
                 count++;
             }
@@ -31,7 +31,7 @@ class Api {
             'https://api.coingecko.com/api/v3/coins/list?include_platform=true')
         let count = 0;
         rs.data.forEach(i => {
-            if (i.platform['binance-smart-chain']) {
+            if (i.platform && i.platform['binance-smart-chain']) {
                 this.cgk[i.platform['binance-smart-chain']] = i;
                 count++;
             }
