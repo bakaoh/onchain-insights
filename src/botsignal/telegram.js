@@ -51,7 +51,7 @@ ${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool &lt 1day, Liquidity 
         const userId = msg.from.id;
 
         if (msg.text == "/start") {
-            this.storage.set(chatId, [false, false, true, true, true]);
+            this.storage.set(chatId, [true, false, false, false, false]);
         } else if (msg.text.startsWith("/enable")) {
             const id = parseInt(msg.text.substr(8));
             const cur = this.storage.get(chatId);
