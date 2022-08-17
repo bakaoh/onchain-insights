@@ -107,7 +107,7 @@ app.post('/bot/check', async (req, res) => {
 
         let sendSignal = false;
         for (let id in Bots) {
-            if (Bots[id].checker(newdata)) {
+            if (Bots[id].checker(data)) {
                 Bots[id].logger.write(`${JSON.stringify(data)}\n`);
                 sendSignal = true;
                 await telegram.sendSignal(id.substr(3), data);
