@@ -33,6 +33,10 @@ class SyncModel {
 
         this.lastHourlySnapshot = 0;
         this.lastHourPrice = {};
+        this.hourlyVolume = {};
+        this.hourlyTx = {};
+        this.volume1h = {};
+        this.tx1h = {};
 
         this.tokenToFetch = new Set();
     }
@@ -90,20 +94,27 @@ class SyncModel {
         const holder = this.holder[token] || 0;
         const volume = this.getVol(token);
         const dailyVolume = [];
+        const hourlyVolume = [(getNumber((this.volume1h[token] || '0').toString()) * this.price[token])];
         const price = this.price[token];
         const price1h = this.lastHourPrice[token];
         const dailyPrice = [];
         const tx = this.tx[token];
+        const hourlyTx = [(this.tx1h[token] || 0)];
         const sellTx = this.sellTx[token];
         const dailyTx = []
         const firstPool = this.getFirstPool(token);
-        const lastIdx = this.lastDailyIdx();
+        const dailyIdx = this.lastDailyIdx();
         for (let i = 0; i < 7; i++) {
-            dailyVolume.push(getNumber((this.dailyVolume[(lastIdx + i) % 7][token] || '0').toString()) * this.price[token])
-            dailyPrice.push(this.dailyPrice[(lastIdx + i) % 7][token] || price);
-            dailyTx.push(this.dailyTx[(lastIdx + i) % 7][token] || 0);
+            dailyVolume.push(getNumber((this.dailyVolume[(dailyIdx + i) % 7][token] || '0').toString()) * this.price[token])
+            dailyPrice.push(this.dailyPrice[(dailyIdx + i) % 7][token] || price);
+            dailyTx.push(this.dailyTx[(dailyIdx + i) % 7][token] || 0);
         }
-        axios.post("http://localhost:9615/bot/check", { token, lp, holder, volume, dailyVolume, price, price1h, dailyPrice, tx, dailyTx, sellTx, firstPool }).catch(err => { });
+        const houryIdx = this.lastHourlyIdx();
+        for (let i = 0; i < 48; i++) {
+            hourlyVolume.push(getNumber((this.hourlyVolume[(houryIdx + i) % 48][token] || '0').toString()) * this.price[token])
+            hourlyTx.push(this.hourlyTx[(houryIdx + i) % 48][token] || 0);
+        }
+        axios.post("http://localhost:9615/bot/check", { token, lp, holder, volume, dailyVolume, hourlyVolume, price, price1h, dailyPrice, tx, dailyTx, hourlyTx, sellTx, firstPool }).catch(err => { });
     }
 
     processEvent(block, pair, token0, token1, reserve0, reserve1, isWarmingUp = false) {
@@ -127,11 +138,15 @@ class SyncModel {
         if (this.reserves[pair]) {
             if (!this.volume[token0]) this.volume[token0] = ZERO;
             if (!this.volume[token1]) this.volume[token1] = ZERO;
+            if (!this.volume1h[token0]) this.volume1h[token0] = ZERO;
+            if (!this.volume1h[token1]) this.volume1h[token1] = ZERO;
             const v0 = this.reserves[pair][0].sub(reserve0);
             const v1 = this.reserves[pair][1].sub(reserve1);
             if (v0.mul(v1).lt(ZERO)) { // trade tx
                 this.volume[token0] = this.volume[token0].add(v0.abs());
                 this.volume[token1] = this.volume[token1].add(v1.abs());
+                this.volume1h[token0] = this.volume1h[token0].add(v0.abs());
+                this.volume1h[token1] = this.volume1h[token1].add(v1.abs());
                 if (v0.gt(ZERO)) { // sell 0 buy 1
                     this.sellTx[token0] = (this.sellTx[token0] || 0) + 1;
                 } else { // sell 1 buy 0
@@ -143,6 +158,8 @@ class SyncModel {
         // tx
         this.tx[token0] = (this.tx[token0] || 0) + 1;
         this.tx[token1] = (this.tx[token1] || 0) + 1;
+        this.tx1h[token0] = (this.tx1h[token0] || 0) + 1;
+        this.tx1h[token1] = (this.tx1h[token1] || 0) + 1;
 
         this.reserves[pair] = [reserve0, reserve1];
 
@@ -155,6 +172,10 @@ class SyncModel {
 
     lastDailyIdx() {
         return (this.lastDailySnapshot / 28800) % 7;
+    }
+
+    lastHourlyIdx() {
+        return (this.lastHourlySnapshot / 1200) % 48;
     }
 
     dailySnapshot(block) {
@@ -173,6 +194,11 @@ class SyncModel {
         if (this.lastHourlySnapshot == block) return;
         this.lastHourlySnapshot = block;
         this.lastHourPrice = { ...this.price };
+        const lastIdx = this.lastHourlyIdx();
+        this.hourlyVolume[lastIdx] = this.volume1h;
+        this.hourlyTx[lastIdx] = this.tx1h;
+        this.volume1h = {};
+        this.tx1h = {};
     }
 
     getNativePrice() {
