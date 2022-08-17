@@ -19,7 +19,7 @@ class Api {
         let count = 0;
         rs.data.data.forEach(i => {
             if (i.platform && i.platform.id == 1839) {
-                this.cmc[i.platfrom.token_address] = i;
+                this.cmc[i.platform.token_address] = i;
                 count++;
             }
         })
@@ -31,8 +31,8 @@ class Api {
             'https://api.coingecko.com/api/v3/coins/list?include_platform=true')
         let count = 0;
         rs.data.forEach(i => {
-            if (i.platform && i.platform['binance-smart-chain']) {
-                this.cgk[i.platform['binance-smart-chain']] = i;
+            if (i.platforms && i.platforms['binance-smart-chain']) {
+                this.cgk[i.platforms['binance-smart-chain']] = i;
                 count++;
             }
         })
