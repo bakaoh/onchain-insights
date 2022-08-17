@@ -94,24 +94,23 @@ app.post('/bot/check', async (req, res) => {
         lastSignal[token] = Date.now();
 
         const metadata = await api.getMetaData(token);
-        const newdata = {};
-        newdata.dailyHolder = await api.getDailyHolder(token);
-        newdata.buyHolder = await api.getBuyHolder(token);
-        newdata.token = data.token;
-        newdata.lp = data.lp;
-        newdata.symbol = metadata.symbol;
-        newdata.name = metadata.name;
-        newdata.cmc = api.cmc[token];
-        newdata.cgk = api.cgk[token];
-        newdata.volume24h = get24h(data.hourlyVolume);
-        newdata.tx24h = get24h(data.hourlyTx)
-        console.log(JSON.stringify(newdata));
+        data.symbol = metadata.symbol;
+        data.name = metadata.name;
+        data.dailyHolder = await api.getDailyHolder(token);
+        data.buyHolder = await api.getBuyHolder(token);
+        data.token = data.token;
+        data.lp = data.lp;
+        data.cmc = api.cmc[token];
+        data.cgk = api.cgk[token];
+        data.volume24h = get24h(data.hourlyVolume);
+        data.tx24h = get24h(data.hourlyTx)
+
         let sendSignal = false;
         for (let id in Bots) {
             if (Bots[id].checker(newdata)) {
-                Bots[id].logger.write(`${JSON.stringify({ ...data, ...newdata })}\n`);
+                Bots[id].logger.write(`${JSON.stringify(data)}\n`);
                 sendSignal = true;
-                await telegram.sendSignal(id.substr(3), { ...data, ...newdata });
+                await telegram.sendSignal(id.substr(3), data);
             }
         }
         if (!sendSignal) lastSignal[token] = last;
