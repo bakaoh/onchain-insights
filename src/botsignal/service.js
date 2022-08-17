@@ -16,7 +16,8 @@ const average3 = (d) => (d[0] + d[1] + d[2]) / 3;
 const average7 = (d) => (d[0] + d[1] + d[2] + d[3] + d[4] + d[5] + d[6]) / 7;
 const get24h = (d) => {
     let rs = 0;
-    for (let i = 0; i < 24; i++) rs += d[i] || 0;
+    for (let i = 0; i < 24; i++) rs += (d[i] || 0);
+    return rs;
 }
 
 const check0 = ({ lp, volume, dailyVolume, price, dailyPrice, tx, dailyTx, firstPool }) => {
