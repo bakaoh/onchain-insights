@@ -83,6 +83,7 @@ app.post('/bot/check', async (req, res) => {
         data.symbol = metadata.symbol;
         data.name = metadata.name;
 
+        console.log(JSON.stringify(data));
         let sendSignal = false;
         for (let id in Bots) {
             if (Bots[id].checker(data)) {
