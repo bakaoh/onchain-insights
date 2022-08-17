@@ -93,10 +93,10 @@ app.post('/bot/check', async (req, res) => {
     if (!last || Date.now() - last > 43200000) {
         lastSignal[token] = Date.now();
 
-        // data.dailyHolder = await api.getDailyHolder(token);
-        // data.buyHolder = await api.getBuyHolder(token);
         const metadata = await api.getMetaData(token);
         const newdata = {};
+        newdata.dailyHolder = await api.getDailyHolder(token);
+        newdata.buyHolder = await api.getBuyHolder(token);
         newdata.token = data.token;
         newdata.lp = data.lp;
         newdata.symbol = metadata.symbol;
