@@ -30,8 +30,7 @@ ${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool &lt 1day, Liquidity 
 
 📛 Token: ${data.name} (${data.symbol})
 〽️ Address: <a href="https://dextrading.io/${data.token}">${data.token}</a>
-✔️ On CoinMarketCap: ${data.cmc ? 'yes' : 'no'}
-✔️ On CoinGecko: ${data.cgk ? 'yes' : 'no'}
+✔️ Listed On: ${data.cmc ? 'CoinMarketCap ' : ''}${data.cgk ? 'CoinGecko' : ''}
 📈 Price: $${data.price}
 📢 Volume (24h): $${data.volume24h}
 🚀 Tx Count (24h): ${data.tx24h}

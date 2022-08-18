@@ -253,7 +253,7 @@ class SyncModel {
             const token = i[0];
             if (!this.holder[token]) {
                 const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
-                this.holder[token] = holders.length > 0 ? holders.reverse()[0].num : (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
+                this.holder[token] = holders.length > 0 ? holders.reverse()[0].num : (await axios.get(`http://10.148.0.42:9613/api/v1/buyholder/${token}`)).data.buyHolder;
             }
             if (this.holder[token]) rs.push(this.getTokenInfo(token));
             if (rs.length >= 100) break;

@@ -101,7 +101,7 @@ app.post('/bot/check', async (req, res) => {
         data.token = data.token;
         data.lp = data.lp;
         data.cmc = api.cmc[token];
-        data.cgk = api.cgk[token];
+        data.cgk = api.cgk[token.toLowerCase()];
         data.volume24h = get24h(data.hourlyVolume);
         data.tx24h = get24h(data.hourlyTx)
 
