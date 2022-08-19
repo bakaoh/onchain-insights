@@ -4,13 +4,26 @@ const Storage = require("./storage");
 const EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
 
 class Controller {
-    constructor(telegramToken) {
+    constructor(telegramToken, portfolio) {
         this.storage = new Storage("db/controller.json");
         this.bot = new TelegramBot(telegramToken, { polling: true });
+        this.portfolio = portfolio;
         this.onMessage = this.onMessage.bind(this);
 
         this.bot.on("polling_error", console.log);
         this.bot.on("message", this.onMessage);
+    }
+
+    async printPortfolio(chatId) {
+        const table = this.portfolio.table;
+        let html = `<b>BOT Portfolio (Buy/Current/Min/Max)</b>\n`;
+        for (let token in table) {
+            const { data } = table[token];
+            if (Date.now() - data.ts > 172800000) continue;
+            const win = data.price > table[token].cur;
+            html += `\n ${win ? '👍' : '👎'} <a href="https://dextrading.io/${data.token}">${data.symbol}</a>: ${data.price}/${table[token].cur}/${table[token].min}/${table[token].max}`;
+        }
+        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
     async printSetting(chatId) {
@@ -30,10 +43,10 @@ ${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool &lt 1day, Liquidity 
 
 📛 Token: ${data.name} (${data.symbol})
 〽️ Address: <a href="https://dextrading.io/${data.token}">${data.token}</a>
-✔️ Listed On: ${data.cmc ? 'CoinMarketCap ' : ''}${data.cgk ? 'CoinGecko' : ''}
+✔️ Listed On: ${data.cmc ? `<a href="https://coinmarketcap.com/currencies/${data.cmc.slug}">CoinMarketCap</a> ` : ''}${data.cgk ? `<a href="https://www.coingecko.com/en/coins/${data.cgk.id}">CoinGecko</a>` : ''}
 📈 Price: $${data.price}
-📢 Volume (24h): $${data.volume24h}
-🚀 Tx Count (24h): ${data.tx24h}
+📢 DEX Volume (24h): $${data.volume24h}
+🚀 DEX Txns (24h): ${data.tx24h}
 💰 Liquidity: $${data.lp}
 📅 First Pool: ${new Date(data.firstPool).toGMTString()}
 ✋ Holder: ${data.buyHolder ? data.buyHolder : data.dailyHolder[0]}
@@ -51,6 +64,9 @@ ${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool &lt 1day, Liquidity 
         const chatId = msg.chat.id;
         const userId = msg.from.id;
 
+        if (msg.txt == "/port") {
+            return this.printPortfolio(chatId);
+        }
         if (msg.text == "/start") {
             this.storage.set(chatId, [true, false, false, false, false]);
         } else if (msg.text.startsWith("/enable")) {
