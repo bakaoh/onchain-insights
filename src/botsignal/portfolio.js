@@ -12,6 +12,7 @@ class Portfolio {
     warmup() {
         const lr = new LineByLine(this.filename);
         lr.on('line', (line) => {
+            if (line == "") return;
             const data = JSON.parse(line);
             this.lastSignal[data.token] = parseInt(data.ts);
             this.table[data.token] = { data };
