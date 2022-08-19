@@ -238,7 +238,7 @@ class SyncModel {
         }
     }
 
-    async getTopToken(orderBy) {
+    async getTopToken(orderBy, page) {
         const orderByFunc = this.getOrderByFunc(orderBy);
         let all = [];
         for (let token in this.price) {
@@ -247,7 +247,7 @@ class SyncModel {
             const value = orderByFunc(token);
             if (value) all.push([token, value]);
         }
-        const top = all.sort((a, b) => (a[1] > b[1]) ? -1 : 1).slice(0, 200);
+        const top = all.sort((a, b) => (a[1] > b[1]) ? -1 : 1).slice(page * 100, 100);
         const rs = [];
         for (let i of top) {
             const token = i[0];
@@ -255,8 +255,7 @@ class SyncModel {
                 const holders = (await axios.get(`http://10.148.0.39:9612/api/v1/holder/${token}`)).data;
                 this.holder[token] = holders.length > 0 ? holders.reverse()[0].num : (await axios.get(`http://10.148.0.42:9613/api/v1/buyholder/${token}`)).data.buyHolder;
             }
-            if (this.holder[token]) rs.push(this.getTokenInfo(token));
-            if (rs.length >= 100) break;
+            rs.push(this.getTokenInfo(token));
         }
         return rs;
     }

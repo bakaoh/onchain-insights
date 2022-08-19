@@ -10,7 +10,8 @@ app.use(express.json());
 
 app.get('/api/v1/leaderboard', async (req, res) => {
     const orderBy = req.query.orderby || "24h";
-    const rs = await syncModel.getTopToken(orderBy);
+    const page = parseInt(req.query.page || "0");
+    const rs = await syncModel.getTopToken(orderBy, page);
     res.json(rs);
 })
 
