@@ -16,13 +16,12 @@ class Controller {
 
     async printPortfolio(chatId) {
         const table = this.portfolio.table;
-        let html = `<b>BOT Portfolio (Buy/Current/Min/Max)</b>\n`;
-        console.log(table)
+        let html = `<b>BOT Portfolio [Buy Date] (Buy/Current Price)</b>\n`;
         for (let token in table) {
             const { data } = table[token];
             if (Date.now() - data.ts > 172800000) continue;
             const win = data.price > table[token].cur;
-            html += `\n ${win ? '👍' : '👎'} <a href="https://dextrading.io/${data.token}">${data.symbol}</a>: ${data.price}/${table[token].cur}/${table[token].min}/${table[token].max}`;
+            html += `\n ${win ? '👍' : '👎'} <a href="https://dextrading.io/${data.token}">${data.symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} / $${table[token].cur}`;
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
