@@ -7,11 +7,12 @@ app.use(express.json());
 
 app.get('/api/v1/leaderboard', async (req, res) => {
     const orderBy = req.query.orderby || "24h";
+    const page = parseInt(req.query.page || "0");
     try {
-        const rs = await axios.get(`http://localhost:9613/api/v1/leaderboard?orderby=${orderBy}`);
-        cache[orderBy] = rs.data;
+        const rs = await axios.get(`http://localhost:9613/api/v1/leaderboard?orderby=${orderBy}&page=${page}`);
+        cache[`${orderBy}_${page}`] = rs.data;
     } catch (err) { }
-    res.json(cache[orderBy]);
+    res.json(cache[`${orderBy}_${page}`]);
 })
 
 async function start(port) {
