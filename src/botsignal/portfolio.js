@@ -15,7 +15,7 @@ class Portfolio {
             if (line == "") return;
             const data = JSON.parse(line);
             this.lastSignal[data.token] = parseInt(data.ts);
-            this.table[data.token] = { data };
+            this.table[data.token] = { data, cur: data.price };
         });
         return new Promise((res, rej) => lr.on('end', () => {
             this.logger = fs.createWriteStream(this.filename, { flags: "a" });
@@ -37,7 +37,7 @@ class Portfolio {
         const ts = parseInt(data.ts);
         if (this.lastSignal[data.token] && ts - this.lastSignal[data.token] < 43200000) return false;
         this.lastSignal[data.token] = ts;
-        this.table[data.token] = { data };
+        this.table[data.token] = { data, cur: data.price };
         return true;
     }
 }
