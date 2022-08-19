@@ -17,6 +17,7 @@ class Controller {
     async printPortfolio(chatId) {
         const table = this.portfolio.table;
         let html = `<b>BOT Portfolio (Buy/Current/Min/Max)</b>\n`;
+        console.log(table)
         for (let token in table) {
             const { data } = table[token];
             if (Date.now() - data.ts > 172800000) continue;
