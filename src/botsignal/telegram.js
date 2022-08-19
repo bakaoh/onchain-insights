@@ -10,7 +10,7 @@ class Controller {
         this.portfolio = portfolio;
         this.onMessage = this.onMessage.bind(this);
 
-        this.bot.on("polling_error", console.log);
+        this.bot.on("polling_error", (e) => console.log(JSON.stringify(e)));
         this.bot.on("message", this.onMessage);
     }
 
@@ -65,7 +65,7 @@ ${EMOJI[4]} ${setting[4] ? '👍' : '👎'} <code>FirstPool &lt 1day, Liquidity 
         const chatId = msg.chat.id;
         const userId = msg.from.id;
 
-        if (msg.txt == "/port") {
+        if (msg.text == "/port") {
             return this.printPortfolio(chatId);
         }
         if (msg.text == "/start") {
