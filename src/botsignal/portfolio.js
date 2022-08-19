@@ -35,7 +35,7 @@ class Portfolio {
     add(data) {
         this.logger.write(`${JSON.stringify(data)}\n`);
         const ts = parseInt(data.ts);
-        if (this.lastSignal[data.token] && ts - this.lastSignal[data.token] < 43200000) return fasle;
+        if (this.lastSignal[data.token] && ts - this.lastSignal[data.token] < 43200000) return false;
         this.lastSignal[data.token] = ts;
         this.table[data.token] = { data };
         return true;
