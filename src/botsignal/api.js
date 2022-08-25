@@ -45,7 +45,7 @@ class Api {
     }
 
     async getBuyHolder(token) {
-        return (await axios.get(`http://10.148.0.42:9613/api/v1/buyholder/${token}`)).data.buyHolder;
+        return (await axios.get(`http://10.148.0.34:9613/api/v1/buyholder/${token}`)).data.buyHolder;
     }
 
     async getMetaData(token) {
