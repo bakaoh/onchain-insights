@@ -24,8 +24,8 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
     async printList(chatId) {
         const settings = this.storage.get(chatId);
         let html = `<b>BOT List</b>\n`
-        for (let s of settings) {
-            html = `\n🤖 <a href="https://dextrading.io/bot/${s}">${s}</a>`
+        for (let i in settings) {
+            if (settings[i]) html = `\n🤖 <a href="https://dextrading.io/bot/${s}">${s}</a>`
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
