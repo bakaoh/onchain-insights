@@ -1,7 +1,13 @@
 const fs = require('fs');
+const crypto = require('crypto')
 const LineByLine = require('line-by-line');
 const { web3, ContractAddress } = require("./network").getConfig();
 const CommonAbi = require('../abis/Common.json');
+
+const generateRandom = (
+    length = 20,
+    wishlist = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+) => Array.from(crypto.randomFillSync(new Uint32Array(length))).map((x) => wishlist[x % wishlist.length]).join('')
 
 const sleep = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -61,7 +67,7 @@ const calcPrice = ([reserve0, reserve1]) => {
 const getNumber = (bn, n = 0, decimals = 18) => parseInt(bn.substr(0, bn.length + n - decimals) || '0') / (10 ** n);
 
 module.exports = {
-    sleep,
+    sleep, generateRandom,
     getTokenMetadata, checkIsContract,
     ZERO, toBN, calcPrice, getNumber,
     getLastLine, getLastFile, getLastFiles
