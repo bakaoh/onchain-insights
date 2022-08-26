@@ -14,7 +14,7 @@ module.exports = {
       script: "src/leaderboard/service.js",
       instances: 1,
       autorestart: true,
-      max_memory_restart: "2000M",
+      max_memory_restart: "4000M",
       watch: false,
       time: true
     },
