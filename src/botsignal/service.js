@@ -23,6 +23,12 @@ const getPrev24h = (d) => {
     return rs;
 }
 
+app.post('/bot/create', async (req, res) => {
+    const data = req.body;
+    const id = settings.create(data);
+    res.json({ status: "ok", id });
+})
+
 app.post('/bot/check', async (req, res) => {
     const data = req.body;
     const { token } = data;
@@ -43,7 +49,7 @@ app.post('/bot/check', async (req, res) => {
     const botIds = settings.checkAll(data);
     await telegram.sendSignal(botIds, data);
 
-    res.json({ "status": "ok" });
+    res.json({ status: "ok" });
 })
 
 async function start(port) {

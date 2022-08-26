@@ -1,16 +1,13 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Storage = require("./storage");
-const Portfolio = require("./portfolio");
-
-const portfolio = new Portfolio(`logs/portfolio0.log`);
 
 const EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
 
 class Controller {
-    constructor(telegramToken, portfolio) {
-        this.storage = new Storage("db/controller.json");
+    constructor(telegramToken) {
+        this.storage = new Storage("db/controller1.json");
         this.bot = new TelegramBot(telegramToken, { polling: true });
-        this.portfolio = portfolio;
+        this.lastSignal = {};
         this.onMessage = this.onMessage.bind(this);
 
         this.bot.on("polling_error", (e) => console.log(JSON.stringify(e)));
@@ -34,15 +31,15 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
     }
 
     async printPortfolio(chatId) {
-        const table = this.portfolio.table;
-        let html = `<b>BOT Portfolio [Buy Date] (Buy/Current Price)</b>\n`;
-        for (let token in table) {
-            const { data } = table[token];
-            if (Date.now() - data.ts > 172800000) continue;
-            const win = data.price > table[token].cur;
-            html += `\n ${win ? '👍' : '👎'} <a href="https://dextrading.io/${data.token}">${data.symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} / $${table[token].cur}`;
-        }
-        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
+        // const table = this.portfolio.table;
+        // let html = `<b>BOT Portfolio [Buy Date] (Buy/Current Price)</b>\n`;
+        // for (let token in table) {
+        //     const { data } = table[token];
+        //     if (Date.now() - data.ts > 172800000) continue;
+        //     const win = data.price > table[token].cur;
+        //     html += `\n ${win ? '👍' : '👎'} <a href="https://dextrading.io/${data.token}">${data.symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} / $${table[token].cur}`;
+        // }
+        // return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
     async sendSignal(ids, data) {
@@ -51,6 +48,11 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         for (let chatId in all) {
             let botIds = ids.filter(id => all[chainId][id]);
             if (botIds.length == 0) continue;
+            const last = this.lastSignal[chatId] || {};
+            if (last[data.token] && Date.now() - last[data.token] < 43200000) continue;
+            last[data.token] = Date.now();
+            this.lastSignal[chatId] = last;
+
             let html = `<b>BOT [${botIds.join()}] Signal</b>
 
 📛 Token: ${data.name} (${data.symbol})
