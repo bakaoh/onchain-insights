@@ -44,7 +44,7 @@ const useBSC = () => {
         '0x0841BD0B734E4F5853f0dD8d7Ea041c241fb0Da6', // Apeswap
         '0x858E3312ed3A876947EA49d572A7C42DE08af7EE', // Biswap
     ]
-    current.web3 = new Web3("https://bsc-dataseed1.defibit.io");
+    current.web3 = new Web3("https://long-long-firefly.bsc.discover.quiknode.pro/983a15976ac7d53feeaea731413e2bb7d4a7a298/");
     current.ContractAddress.common = '0x3E694aCF551425A657A7F974ab6F876E3b0822Fe';
     current.ContractAddress.wrappedNative = '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c';
     current.ContractAddress.nativePricePair = '0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16'; // Pancake WBNB-BUSD 
