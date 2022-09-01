@@ -26,7 +26,8 @@ class Portfolio {
 
     buy(token, price, ts) {
         const cur = this.storage.get(token) || {};
-        cur.tx = (cur.tx || []).push({ price, ts });
+        if (cur.tx instanceof Array) cur.tx.push({ price, ts });
+        else cur.tx = [{ price, ts }];
         this.storage.set(token, cur);
     }
 }
