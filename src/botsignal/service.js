@@ -37,7 +37,7 @@ app.post('/bot/check', async (req, res) => {
     data.symbol = metadata.symbol;
     data.name = metadata.name;
     data.holder = await api.getDailyHolder(token);
-    data.liquidity = data.lp;
+    data.liquidity = [data.lp];
     data.cmc = api.cmc[token];
     data.cgk = api.cgk[token.toLowerCase()];
     data.price1h = [data.price, data.price1h];
@@ -47,7 +47,6 @@ app.post('/bot/check', async (req, res) => {
     data.ts = Date.now();
 
     const botIds = settings.checkAll(data);
-    console.log(data, botIds)
     await telegram.sendSignal(botIds, data);
 
     res.json({ status: "ok" });
