@@ -72,7 +72,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
                 parse_mode: "HTML",
                 reply_markup: {
                     inline_keyboard: [[
-                        { text: "BUY NOW", callback_data: `BUY_${data.token}_${data.price1h[0]}` },
+                        { text: "BUY NOW", callback_data: `BUY_${data.token}` },
                     ]]
                 },
             }).catch(console.log);
