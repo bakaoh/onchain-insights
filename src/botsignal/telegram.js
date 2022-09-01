@@ -46,12 +46,16 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         if (ids.length != 0) return;
         const all = this.storage.all();
         for (let chatId in all) {
+            console.log(1, chatId, ids)
             let botIds = ids.filter(id => all[chatId][id]);
             if (botIds.length == 0) continue;
+            console.log(2, chatId, ids)
+
             const last = this.lastSignal[chatId] || {};
             if (last[data.token] && Date.now() - last[data.token] < 43200000) continue;
             last[data.token] = Date.now();
             this.lastSignal[chatId] = last;
+            console.log(3, chatId, ids)
 
             let html = `<b>BOT [${botIds.join()}] Signal</b>
 
@@ -61,10 +65,11 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
 📈 Price: $${data.price1h[0]}
 📢 DEX Volume (24h): $${data.volume[0]}
 🚀 DEX Txns (24h): ${data.tx[0]}
-💰 Liquidity: $${data.liquidity}
+💰 Liquidity: $${data.liquidity[0]}
 📅 First Pool: ${new Date(data.firstPool).toGMTString()}
 ✋ Holder: ${data.holder[0]}
 `
+            console.log(4, chatId, ids)
             await this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
         }
     }
