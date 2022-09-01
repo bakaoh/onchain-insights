@@ -46,7 +46,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         if (ids.length != 0) return;
         const all = this.storage.all();
         for (let chatId in all) {
-            let botIds = ids.filter(id => all[chainId][id]);
+            let botIds = ids.filter(id => all[chatId][id]);
             if (botIds.length == 0) continue;
             const last = this.lastSignal[chatId] || {};
             if (last[data.token] && Date.now() - last[data.token] < 43200000) continue;
