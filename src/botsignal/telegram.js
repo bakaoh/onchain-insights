@@ -9,9 +9,11 @@ class Controller {
         this.bot = new TelegramBot(telegramToken, { polling: true });
         this.lastSignal = {};
         this.onMessage = this.onMessage.bind(this);
+        this.onCallback = this.onCallback.bind(this);
 
         this.bot.on("polling_error", (e) => console.log(JSON.stringify(e)));
         this.bot.on("message", this.onMessage);
+        this.bot.on("callback_query", this.onCallback);
     }
 
     async printWelcome(chatId) {
@@ -66,8 +68,26 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
 📅 First Pool: ${new Date(data.firstPool).toGMTString()}
 ✋ Holder: ${data.holder[0]}
 `
-            await this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
+            await this.bot.sendMessage(chatId, html, {
+                parse_mode: "HTML",
+                reply_markup: {
+                    inline_keyboard: [[
+                        { text: "BUY NOW", callback_data: `BUY_${data.token}_${data.price1h[0]}` },
+                    ]]
+                },
+            }).catch(console.log);
         }
+    }
+
+    async onCallback(cb) {
+        this.bot.answerCallbackQuery(cb.id, { text: "Ok" }).catch(console.log);
+        const option = {
+            parse_mode: "HTML",
+            chat_id: cb.message.chat.id,
+            message_id: cb.message.message_id
+        };
+        console.log(cb.data, option);
+        await this.bot.editMessageReplyMarkup({ inline_keyboard }, option).catch(console.log);
     }
 
     async onMessage(msg) {
