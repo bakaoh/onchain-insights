@@ -87,7 +87,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
             message_id: cb.message.message_id
         };
         console.log(cb.data, option);
-        await this.bot.editMessageReplyMarkup({ inline_keyboard }, option).catch(console.log);
+        await this.bot.editMessageReplyMarkup({ inline_keyboard: [] }, option).catch(console.log);
     }
 
     async onMessage(msg) {
