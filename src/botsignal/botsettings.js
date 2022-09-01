@@ -37,6 +37,13 @@ class BotSettings {
         return id;
     }
 
+    update(id, settings, creator = '0x') {
+        if (!this.metadata[id]) return "not_found";
+        this.metadata[id].settings = settings;
+        fs.writeFileSync(`${SETTINGS_FOLDER}/${id}`, JSON.stringify(this.metadata[id], null, 2));
+        return "ok";
+    }
+
     checkAll(data) {
         let ids = [];
         for (let id in this.metadata) {

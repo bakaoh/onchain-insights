@@ -29,6 +29,13 @@ app.post('/bot/create', async (req, res) => {
     res.json({ status: "ok", id });
 })
 
+app.put('/bot/update/:botId', async (req, res) => {
+    const botId = req.params.botId;
+    const data = req.body;
+    const status = settings.update(botId, data);
+    res.json({ status });
+})
+
 app.post('/bot/check', async (req, res) => {
     const data = req.body;
     const { token } = data;
@@ -47,6 +54,7 @@ app.post('/bot/check', async (req, res) => {
     data.ts = Date.now();
 
     const botIds = settings.checkAll(data);
+    telegram.updatePrice(token, data.price);
     await telegram.sendSignal(botIds, data);
 
     res.json({ status: "ok" });

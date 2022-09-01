@@ -1,44 +1,33 @@
 const fs = require('fs');
-const LineByLine = require('line-by-line');
+const Storage = require("./storage");
+
+const USERS_FOLDER = 'db/bot/users';
 
 class Portfolio {
-    constructor(filename) {
-        this.filename = filename;
-        this.lastSignal = {};
-        this.logger = undefined;
-        this.table = {};
+    constructor(chatId) {
+        this.storage = new Storage(`${USERS_FOLDER}/${chatId}.json`);
     }
 
-    warmup() {
-        const lr = new LineByLine(this.filename);
-        lr.on('line', (line) => {
-            if (line == "") return;
-            const data = JSON.parse(line);
-            this.lastSignal[data.token] = parseInt(data.ts);
-            this.table[data.token] = { data, cur: data.price };
-        });
-        return new Promise((res, rej) => lr.on('end', () => {
-            this.logger = fs.createWriteStream(this.filename, { flags: "a" });
-            res();
-        }).on('error', err => rej(err)));
+    all() {
+        return this.storage.all();
     }
 
-    updatePrice(data) {
-        if (!data.price) return;
-        const row = this.table[data.token]
-        if (!row) return;
-        row.cur = data.price;
-        if (!row.max || row.max < data.price) row.max = data.price;
-        if (!row.min || row.min > data.price) row.min = data.price;
+    lastSignal(token) {
+        const cur = this.storage.get(token);
+        return cur ? cur.lastSignal : 0;
     }
 
-    add(data) {
-        this.logger.write(`${JSON.stringify(data)}\n`);
-        const ts = parseInt(data.ts);
-        if (this.lastSignal[data.token] && ts - this.lastSignal[data.token] < 43200000) return false;
-        this.lastSignal[data.token] = ts;
-        this.table[data.token] = { data, cur: data.price };
-        return true;
+    setLastSignal(token, ts, symbol) {
+        const cur = this.storage.get(token) || {};
+        cur.lastSignal = ts;
+        cur.symbol = symbol;
+        this.storage.set(token, cur);
+    }
+
+    buy(token, price, ts) {
+        const cur = this.storage.get(token) || {};
+        cur.tx = (cur.tx || []).push({ price, ts });
+        this.storage.set(token, cur);
     }
 }
 

@@ -3,7 +3,7 @@ const fs = require("fs");
 class Storage {
     constructor(file) {
         this.file = file;
-        this.setting = JSON.parse(fs.readFileSync(this.file));
+        this.setting = fs.existsSync(this.file) ? JSON.parse(fs.readFileSync(this.file)) : {};
     }
 
     save() {

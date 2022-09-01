@@ -1,5 +1,6 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Storage = require("./storage");
+const Portfolio = require("./portfolio");
 
 const EMOJI = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
 
@@ -7,13 +8,23 @@ class Controller {
     constructor(telegramToken) {
         this.storage = new Storage("db/controller1.json");
         this.bot = new TelegramBot(telegramToken, { polling: true });
-        this.lastSignal = {};
+        this.users = {};
         this.onMessage = this.onMessage.bind(this);
         this.onCallback = this.onCallback.bind(this);
+        this.prices = {};
 
         this.bot.on("polling_error", (e) => console.log(JSON.stringify(e)));
         this.bot.on("message", this.onMessage);
         this.bot.on("callback_query", this.onCallback);
+    }
+
+    getUser(chatId) {
+        if (!this.users[chatId]) this.users[chatId] = new Portfolio(chatId);
+        return this.users[chatId];
+    }
+
+    updatePrice(token, price) {
+        this.prices[token] = price;
     }
 
     async printWelcome(chatId) {
@@ -33,15 +44,17 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
     }
 
     async printPortfolio(chatId) {
-        // const table = this.portfolio.table;
-        // let html = `<b>BOT Portfolio [Buy Date] (Buy/Current Price)</b>\n`;
-        // for (let token in table) {
-        //     const { data } = table[token];
-        //     if (Date.now() - data.ts > 172800000) continue;
-        //     const win = data.price > table[token].cur;
-        //     html += `\n ${win ? '👍' : '👎'} <a href="https://dextrading.io/${data.token}">${data.symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} / $${table[token].cur}`;
-        // }
-        // return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
+        const user = this.getUser(chatId);
+        const table = user.all();
+        let html = `<b>BOT Portfolio</b>\n`;
+        for (let token in table) {
+            if (table[token].tx) {
+                const data = table[token].tx[table[token].tx.length - 1];
+                const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
+                html += `\n <a href="https://dextrading.io/${token}">${data.symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} ${diff ? `(${diff.toFixed(2)})` : ''}`;
+            }
+        }
+        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
     async sendSignal(ids, data) {
@@ -50,11 +63,9 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         for (let chatId in all) {
             let botIds = ids.filter(id => all[chatId][id]);
             if (botIds.length == 0) continue;
-
-            const last = this.lastSignal[chatId] || {};
-            if (last[data.token] && Date.now() - last[data.token] < 43200000) continue;
-            last[data.token] = Date.now();
-            this.lastSignal[chatId] = last;
+            const user = this.getUser(chatId);
+            if (Date.now() - user.lastSignal(data.token) < 43200000) continue;
+            user.setLastSignal(data.token, Date.now(), data.symbol);
 
             let html = `<b>BOT [${botIds.join()}] Signal</b>
 
@@ -80,14 +91,24 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
     }
 
     async onCallback(cb) {
-        this.bot.answerCallbackQuery(cb.id, { text: "Ok" }).catch(console.log);
-        const option = {
-            parse_mode: "HTML",
-            chat_id: cb.message.chat.id,
-            message_id: cb.message.message_id
-        };
-        console.log(cb.data, option);
-        await this.bot.editMessageReplyMarkup({ inline_keyboard: [] }, option).catch(console.log);
+        if (cb.data.startsWith("BUY_")) {
+            const token = cb.data.substr(4);
+            let answer = ""
+            if (!this.prices[token]) {
+                answer = "Too late!";
+            } else {
+                const user = this.getUser(cb.message.chat.id);
+                user.buy(token, this.prices[token], Date.now());
+                answer = "Succeed!";
+            }
+            this.bot.answerCallbackQuery(cb.id, { text: answer }).catch(console.log);
+            const option = {
+                parse_mode: "HTML",
+                chat_id: cb.message.chat.id,
+                message_id: cb.message.message_id
+            };
+            await this.bot.editMessageReplyMarkup({ inline_keyboard: [] }, option).catch(console.log);
+        }
     }
 
     async onMessage(msg) {
