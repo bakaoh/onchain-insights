@@ -47,6 +47,7 @@ app.post('/bot/check', async (req, res) => {
     data.ts = Date.now();
 
     const botIds = settings.checkAll(data);
+    console.log(data, botIds)
     await telegram.sendSignal(botIds, data);
 
     res.json({ status: "ok" });
