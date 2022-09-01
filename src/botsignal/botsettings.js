@@ -5,18 +5,13 @@ const SETTINGS_FOLDER = 'db/bot/settings';
 const VERSION = 1;
 
 const isValidMMID = (s, d) => {
-    const calc = () => {
-        if (s == undefined || d == undefined) return true;
-        if (s.min != undefined && s.min > d[0]) return false;
-        if (s.max != undefined && s.max < d[0]) return false;
-        if (d[1] == undefined) return true;
-        if (s.inc != undefined && (100 + s.inc) * d[1] > d[0]) return false;
-        if (s.dec != undefined && (100 - s.dec) * d[1] < d[0]) return false;
-        return true;
-    };
-    const rs = calc();
-    if (!rs) console.log(s, d)
-    return rs;
+    if (s == undefined || d == undefined) return true;
+    if (s.min != undefined && s.min > d[0]) return false;
+    if (s.max != undefined && s.max < d[0]) return false;
+    if (d[1] == undefined) return true;
+    if (s.inc != undefined && (100 + s.inc) * d[1] > d[0]) return false;
+    if (s.dec != undefined && (100 - s.dec) * d[1] < d[0]) return false;
+    return true;
 }
 
 class BotSettings {
