@@ -43,7 +43,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
     }
 
     async sendSignal(ids, data) {
-        if (ids.length != 0) return;
+        if (ids.length == 0) return;
         const all = this.storage.all();
         for (let chatId in all) {
             console.log(1, chatId, ids)
