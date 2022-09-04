@@ -51,7 +51,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
             if (table[token].tx) {
                 const data = table[token].tx[table[token].tx.length - 1];
                 const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
-                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} ${diff ? `(${diff.toFixed(2)})` : ''}`;
+                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toGMTString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''}`;
             }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
