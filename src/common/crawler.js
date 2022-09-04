@@ -1,4 +1,5 @@
 const fs = require('fs');
+const Web3 = require("web3");
 const { web3, getBlockNumber } = require('./network').getConfig();
 const { getLastLine, sleep } = require('./util');
 
@@ -10,6 +11,11 @@ class Crawler {
         this.onLogs = onLogs;
         this.batchSize = batchSize;
         this.blockFile = `db/${name}.block`;
+        this.web3 = web3;
+    }
+
+    setWeb3(url) {
+        this.web3 = new Web3(url);
     }
 
     async run() {
@@ -28,7 +34,7 @@ class Crawler {
                     if (toBlock >= latest) break;
                 }
                 fromBlock = await this.crawlLogs(fromBlock, toBlock, 1000) + 1;
-            } catch (err) { console.log(`Error ${fromBlock}:`, err); await sleep(2000); }
+            } catch (err) { console.log(`Error ${fromBlock}:`, err); await sleep(10000); }
         }
         if (fromBlock > latest) fromBlock = latest;
 
@@ -36,12 +42,12 @@ class Crawler {
             try {
                 fromBlock = await this.crawlLogs(fromBlock) + 1;
             } catch (err) { console.log(`Error ${fromBlock}:`, err); }
-        }, 6000)
+        }, 30000)
     }
 
     async crawlLogs(fromBlock, toBlock = 'latest', sleepMs = 0) {
         const startMs = Date.now();
-        const pastLogs = await web3.eth.getPastLogs({
+        const pastLogs = await this.web3.eth.getPastLogs({
             fromBlock,
             toBlock,
             topics: [this.topic],

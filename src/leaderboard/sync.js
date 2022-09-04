@@ -46,6 +46,7 @@ class SyncModel {
             const values = web3.eth.abi.decodeParameters(['uint256', 'uint256'], log.data)
             await this.onSyncLog(log.blockNumber, log.transactionIndex, log.logIndex, log.address, values[0].toString(10), values[1].toString(10));
         }, 200);
+        this.crawler.setWeb3('https://rpc.ankr.com/bsc');
         await this.crawler.run();
     }
 
