@@ -239,7 +239,7 @@ class SyncModel {
         }
     }
 
-    async getTopToken(orderBy, page) {
+    async getTopToken(orderBy, page, asc) {
         const orderByFunc = this.getOrderByFunc(orderBy);
         let all = [];
         for (let token in this.price) {
@@ -248,7 +248,8 @@ class SyncModel {
             const value = orderByFunc(token);
             if (value) all.push([token, value]);
         }
-        const top = all.sort((a, b) => (a[1] > b[1]) ? -1 : 1).slice(page * 100, (page + 1) * 100);
+        const sortFn = asc ? ((a, b) => (a[1] > b[1]) ? 1 : -1) : ((a, b) => (a[1] > b[1]) ? -1 : 1)
+        const top = all.sort(sortFn).slice(page * 100, (page + 1) * 100);
         const rs = [];
         for (let i of top) {
             const token = i[0];
