@@ -30,6 +30,15 @@ class Portfolio {
         else cur.tx = [{ price, ts }];
         this.storage.set(token, cur);
     }
+
+    sell(address, idx) {
+        const table = this.all();
+        for (let token in table) {
+            if (token.substr(37) != address) continue;
+            if (!table[token].tx) continue;
+            table[token].tx.splice(idx, 1);
+        }
+    }
 }
 
 module.exports = Portfolio;

@@ -47,13 +47,13 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         const user = this.getUser(chatId);
         const table = user.all();
         let html = `<b>BOT Portfolio</b>\n`;
-        let idx = 0;
         for (let token in table) {
-            if (table[token].tx) {
-                idx++;
-                const data = table[token].tx[table[token].tx.length - 1];
+            if (!table[token].tx) continue;
+            for (let i of table[token].tx) {
+                const orderId = `${token.substr(37)}${i}`
+                const data = table[token].tx[i];
                 const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
-                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell${idx}`;
+                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell${orderId}`;
             }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
@@ -136,6 +136,13 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         } else if (msg.text == "/list") {
             return this.printList(chatId);
         } else if (msg.text == "/wallet") {
+            return this.printPortfolio(chatId);
+        } else if (msg.text.startsWith("/sell")) {
+            const orderId = msg.text.substr(5);
+            const address = orderId.substr(0, 5);
+            const idx = orderId.substr(5);
+            const user = this.getUser(chatId);
+            user.sell(address, idx);
             return this.printPortfolio(chatId);
         }
     }
