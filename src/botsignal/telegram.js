@@ -53,7 +53,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
                 const orderId = `${token.substr(37)}${i}`
                 const data = table[token].tx[i];
                 const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
-                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell${orderId}`;
+                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell_${orderId}`;
             }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
@@ -137,8 +137,8 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
             return this.printList(chatId);
         } else if (msg.text == "/wallet") {
             return this.printPortfolio(chatId);
-        } else if (msg.text.startsWith("/sell")) {
-            const orderId = msg.text.substr(5);
+        } else if (msg.text.startsWith("/sell_")) {
+            const orderId = msg.text.substr(6);
             const address = orderId.substr(0, 5);
             const idx = orderId.substr(5);
             const user = this.getUser(chatId);
