@@ -49,7 +49,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         let html = `<b>BOT Portfolio</b>\n`;
         for (let token in table) {
             if (!table[token].tx) continue;
-            for (let i of table[token].tx) {
+            for (let i in table[token].tx) {
                 const orderId = `${token.substr(37)}${i}`
                 const data = table[token].tx[i];
                 const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
