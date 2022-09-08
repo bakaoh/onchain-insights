@@ -126,7 +126,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
             this.storage.set(chatId, cur);
             return this.printList(chatId);
         } else if (msg.text.startsWith("/remove")) {
-            const id = parseInt(msg.text.substr(8));
+            const id = msg.text.substr(8);
             const cur = this.storage.get(chatId);
             cur[id] = false;
             this.storage.set(chatId, cur);
