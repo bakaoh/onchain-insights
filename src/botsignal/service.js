@@ -29,6 +29,12 @@ app.post('/bot/create', async (req, res) => {
     res.json({ status: "ok", id });
 })
 
+app.get('/bot/config/:botId', async (req, res) => {
+    const botId = req.params.botId;
+    const [status, settings] = settings.get(botId);
+    res.json({ status, settings });
+})
+
 app.put('/bot/update/:botId', async (req, res) => {
     const botId = req.params.botId;
     const data = req.body;

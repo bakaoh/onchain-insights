@@ -6,11 +6,11 @@ const VERSION = 1;
 
 const isValidMMID = (s, d) => {
     if (s == undefined || d == undefined) return true;
-    if (s.min != undefined && s.min > d[0]) return false;
-    if (s.max != undefined && s.max < d[0]) return false;
+    if (s.min != undefined && s.min != "" && parseInt(s.min) > d[0]) return false;
+    if (s.max != undefined && s.max != "" && parseInt(s.max) < d[0]) return false;
     if (d[1] == undefined) return true;
-    if (s.inc != undefined && (100 + s.inc) * d[1] > d[0]) return false;
-    if (s.dec != undefined && (100 - s.dec) * d[1] < d[0]) return false;
+    if (s.inc != undefined && s.inc != "" && (100 + parseInt(s.inc)) * d[1] > d[0]) return false;
+    if (s.dec != undefined && s.dec != "" && (100 - parseInt(s.dec)) * d[1] < d[0]) return false;
     return true;
 }
 
@@ -37,6 +37,11 @@ class BotSettings {
         return id;
     }
 
+    get(id) {
+        if (!this.metadata[id]) return ["not_found", {}];
+        return ["ok", this.metadata[id].settings];
+    }
+
     update(id, settings, creator = '0x') {
         if (!this.metadata[id]) return "not_found";
         this.metadata[id].settings = settings;
@@ -53,6 +58,7 @@ class BotSettings {
     }
 
     check(settings, data) {
+        if (JSON.stringify(settings) == '{}') return false;
         if (settings.exchange == 'dex/cex') {
             // TODO:
         }
