@@ -5,12 +5,14 @@ const app = express();
 const Controller = require("./telegram");
 const Api = require("./api");
 const BotSettings = require('./botsettings');
+const cors = require('cors')
 
 const telegram = new Controller(process.env.TELEGRAM_TOKEN);
 const api = new Api();
 const settings = new BotSettings();
 
 app.use(express.json());
+app.use(cors());
 
 const get24h = (d) => {
     let rs = 0;
