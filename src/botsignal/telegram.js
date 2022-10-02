@@ -122,13 +122,13 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
             this.storage.set(chatId, {});
             return this.printWelcome(chatId);
         } else if (msg.text.startsWith("/add")) {
-            const id = msg.text.substr(5);
+            const id = msg.text.substr(5).trim();
             const cur = this.storage.get(chatId);
             cur[id] = true;
             this.storage.set(chatId, cur);
             return this.printList(chatId);
         } else if (msg.text.startsWith("/remove")) {
-            const id = msg.text.substr(8);
+            const id = msg.text.substr(8).trim();
             const cur = this.storage.get(chatId);
             cur[id] = false;
             this.storage.set(chatId, cur);
@@ -138,7 +138,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         } else if (msg.text == "/wallet") {
             return this.printPortfolio(chatId);
         } else if (msg.text.startsWith("/sell_")) {
-            const orderId = msg.text.substr(6);
+            const orderId = msg.text.substr(6).trim();
             const address = orderId.substr(0, 5);
             const idx = orderId.substr(5);
             const user = this.getUser(chatId);
