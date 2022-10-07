@@ -1,4 +1,5 @@
-require('dotenv').config({ path: '/Users/vng/Desktop/coinmap/avachain/.env' });
+// require('dotenv').config({ path: '/Users/vng/Desktop/coinmap/avachain/.env' });
+require('dotenv').config({ path: '/home/bakaking/bscchain/.env' });
 require('../common/network').useBSC();
 
 const Storage = require('./storage');
