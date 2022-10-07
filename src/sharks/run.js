@@ -12,7 +12,7 @@ async function run() {
     // const topTokens = await getTopTokens();
     // storage.writeTopTokens(topTokens)
     // for (let token of topTokens) {
-    //     console.log(`Crawl ${token.address}`);
+    //     console.log(`Crawl holders ${token.address}`);
     //     const topHolders = await getTopHolders(token.address);
     //     storage.writeTopHolders(token.address, topHolders);
     // }
@@ -23,6 +23,7 @@ async function run() {
         for (let holder of topHolders) {
             if (holder.isContract == "true" || holder.name != holder.address) continue;
             if (storage.hasTokenTransfers(holder.address)) continue;
+            console.log(`Crawl transfers ${holder.address}`);
             const transfers = await getTokenTransfers(holder.address);
             storage.writeTokenTransfers(holder.address, transfers);
         }
