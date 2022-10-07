@@ -61,7 +61,7 @@ class Storage {
         writer.end();
     }
 
-    hasTokenTransfer(holder) {
+    hasTokenTransfers(holder) {
         return fs.existsSync(`${this.folder}/transfers/${holder}`);
     }
 
