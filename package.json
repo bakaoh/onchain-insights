@@ -13,6 +13,7 @@
     "express": "^4.17.3",
     "line-by-line": "^0.1.6",
     "node-cache": "^5.1.2",
+    "node-html-parser": "^6.1.1",
     "node-telegram-bot-api": "^0.58.0",
     "read-last-lines": "^1.8.0",
     "web3": "3.0.0-rc.4"
