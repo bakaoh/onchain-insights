@@ -61,6 +61,10 @@ class Storage {
         writer.end();
     }
 
+    hasTokenTransfer(holder) {
+        return fs.existsSync(`${this.folder}/transfers/${holder}`);
+    }
+
     loadTokenTransfers(holder) {
         const rs = [];
         const lr = new LineByLine(`${this.folder}/transfers/${holder}`);

@@ -22,6 +22,7 @@ async function run() {
         const topHolders = await storage.loadTopHolders(token.address);
         for (let holder of topHolders) {
             if (holder.isContract == "true" || holder.name != holder.address) continue;
+            if (storage.hasTokenTransfers(holder.address)) continue;
             const transfers = await getTokenTransfers(holder.address);
             storage.writeTokenTransfers(holder.address, transfers);
         }
