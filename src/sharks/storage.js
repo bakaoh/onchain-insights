@@ -53,6 +53,7 @@ class Storage {
     }
 
     writeTokenTransfers(holder, transfers) {
+        if (!transfers) return;
         const writer = fs.createWriteStream(`${this.folder}/transfers/${holder}`, opts);
         for (let transfer of transfers) {
             const { blockNumber, contractAddress, from, to, value } = transfer;
