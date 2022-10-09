@@ -30,7 +30,7 @@ const countTransfer = (transfers) => {
 }
 const lastTokenTransfer = (holder, transfers) => {
     for (let transfer of transfers) {
-        const token = topTokens[contractAddress];
+        const token = topTokens[transfer.contractAddress];
         if (transfer.to == holder && token) {
             return { address: token.address, symbol: token.symbol };
         }
