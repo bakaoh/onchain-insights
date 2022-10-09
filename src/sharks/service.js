@@ -72,6 +72,7 @@ app.get('/api/v2/sharks/:token', async (req, res) => {
         }
         const price = toBN(Math.round(1000000 * priceHistory[0].price));
         const hold = toBN(Math.round(balance)).mul(price).divn(1000000);
+        if (vin == toBN(0)) return 0;
         return parseInt(vout.add(hold).muln(1000).div(vin)) / 1000;
     }
 
