@@ -79,15 +79,15 @@ app.get('/api/v2/sharks/:token', async (req, res) => {
     const topHolders = await storage.loadTopHolders(token);
     const rs = [];
     for (let holder of topHolders) {
-        const { address, quantity } = holder;
+        const { address, quantity, value } = holder;
         if (rs.length > 20) break;
         if (!storage.hasTokenTransfers(address)) continue;
         const transfers = await storage.loadTokenTransfers(address);
         if (transfers.length > 2000) continue;
         const activity = countTransfer(transfers);
-        const pnl = getPNL(address, quantity, transfers);
+        const pnl = getPNL(address, quantity, transfers) * 100;
         const lastToken = lastTokenTransfer(address, transfers);
-        rs.push({ address, quantity, activity, pnl, lastToken });
+        rs.push({ address, quantity, activity, pnl, value, lastToken });
     }
     res.json({ status: "ok", holders: rs });
 })
