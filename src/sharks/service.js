@@ -85,7 +85,7 @@ app.get('/api/v2/sharks/:token', async (req, res) => {
         const transfers = await storage.loadTokenTransfers(address);
         if (transfers.length > 2000) continue;
         const activity = countTransfer(transfers);
-        const pnl = getPNL(address, quantity, transfers) * 100;
+        const pnl = getPNL(address, quantity, transfers);
         const lastToken = lastTokenTransfer(address, transfers);
         rs.push({ address, quantity, activity, pnl, value, lastToken });
     }
