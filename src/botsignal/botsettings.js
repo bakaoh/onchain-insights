@@ -62,6 +62,9 @@ class BotSettings {
         if (settings.exchange == 'dex/cex') {
             // TODO:
         }
+        if (settings.token) {
+            if ([data.symbol.toUpperCase(), data.name.toUpperCase(), data.token.toUpperCase()].includes(settings.token.toUpperCase())) return false;
+        }
         if (settings.cmcOrCgk && !data.cmc && !data.cgk) return false;
         if (settings.firstPool) {
             const elapsed = Date.now() - data.firstPool;

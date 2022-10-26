@@ -22,9 +22,30 @@ class Api {
 
     async getTopToken() {
         const rs = await axios.get(
-            'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=5000',
+            'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?limit=60',
             { headers: { 'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY } });
         return rs.data.data;
+    }
+
+    async getTokenOHLCV(id) {
+        const rs = await axios.get(
+            `https://pro-api.coinmarketcap.com/v2/cryptocurrency/ohlcv/historical?id=${id}&count=30`,
+            { headers: { 'X-CMC_PRO_API_KEY': process.env.CMC_API_KEY } });
+        return rs.data.data;
+    }
+
+    async cgk_getToken() {
+        const rs = await axios.get(
+            'https://pro-api.coingecko.com/api/v3/coins/list',
+            { headers: { 'x-cg-pro-api-key': process.env.CGK_API_KEY } });
+        return rs.data;
+    }
+
+    async cgk_getTokenChart(id) {
+        const rs = await axios.get(
+            `https://pro-api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=200&interval=daily`,
+            { headers: { 'x-cg-pro-api-key': process.env.CGK_API_KEY } });
+        return rs.data;
     }
 
     async getTopHolder(tokenAddress) {

@@ -33,8 +33,8 @@ app.post('/bot/create', async (req, res) => {
 
 app.get('/bot/config/:botId', async (req, res) => {
     const botId = req.params.botId;
-    const [status, settings] = settings.get(botId);
-    res.json({ status, settings });
+    const [status, data] = settings.get(botId);
+    res.json({ status, settings: data });
 })
 
 app.put('/bot/update/:botId', async (req, res) => {
