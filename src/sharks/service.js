@@ -6,7 +6,7 @@ const { getPriceHistory } = require('./bitquery');
 const { toBN } = require('../common/util');
 
 const BUSD = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56';
-const storage = new Storage('20221007');
+const storage = new Storage('20221104');
 const app = express();
 
 const topTokens = {};
