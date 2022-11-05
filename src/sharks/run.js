@@ -5,7 +5,7 @@ require('../common/network').useBSC();
 const Storage = require('./storage');
 const { getTopHolders, getTopTokens, getTokenTransfers } = require('./bscscan');
 const { getPriceHistory } = require('./bitquery');
-const { toBN } = require('../common/util');
+const { toBN, sleep } = require('../common/util');
 
 async function run() {
     const storage = new Storage('20221104');
