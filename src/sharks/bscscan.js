@@ -53,8 +53,8 @@ const getTopHolders = async (token) => {
 }
 
 const getTokenTransfers = async (holder) => {
-    const rs = await proxyGet(`https://api.bscscan.com/api?module=account&action=tokentx&address=${holder}&page=1&offset=5000&sort=desc&apikey=${process.env.BSCSCAN_API_KEY}`)
-    return rs.result;
+    const rs = await axios.get(`https://api.bscscan.com/api?module=account&action=tokentx&address=${holder}&page=1&offset=5000&sort=desc&apikey=${process.env.BSCSCAN_API_KEY}`)
+    return rs.data.result;
 }
 
 module.exports = { getTopHolders, getTopTokens, getTokenTransfers };
