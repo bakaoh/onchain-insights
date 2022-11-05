@@ -56,8 +56,8 @@ class Storage {
         if (!transfers) return;
         const writer = fs.createWriteStream(`${this.folder}/transfers/${holder}`, opts);
         for (let transfer of transfers) {
-            const { blockNumber, contractAddress, from, to, value } = transfer;
-            writer.write(`${blockNumber},${contractAddress},${from},${to},${value}\n`);
+            const { blockNumber, contractAddress, from, to, value, tokenSymbol } = transfer;
+            writer.write(`${blockNumber},${contractAddress},${from},${to},${value},${tokenSymbol}\n`);
         }
         writer.end();
     }
@@ -70,8 +70,8 @@ class Storage {
         const rs = [];
         const lr = new LineByLine(`${this.folder}/transfers/${holder}`);
         lr.on('line', (line) => {
-            const [blockNumber, contractAddress, from, to, value] = line.split(',');
-            rs.push({ blockNumber, contractAddress, from, to, value })
+            const [blockNumber, contractAddress, from, to, value, tokenSymbol] = line.split(',');
+            rs.push({ blockNumber, contractAddress, from, to, value, tokenSymbol })
         });
         return new Promise((res, rej) => lr.on('end', () => res(rs)).on('error', err => rej(err)));
     }
