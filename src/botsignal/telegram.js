@@ -28,9 +28,9 @@ class Controller {
     }
 
     async printWelcome(chatId) {
-        let html = `<b>✨✨✨Welcome to Dextrading BOT✨✨✨</b>
+        let html = `<b>✨✨✨Welcome to SpiritX Signal BOT✨✨✨</b>
 
-Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 🤖`
+Please go <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> to create your first bot 🤖`
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
@@ -38,7 +38,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
         const settings = this.storage.get(chatId);
         let html = `<b>BOT List</b>\n`
         for (let i in settings) {
-            if (settings[i]) html += `\n🤖 <a href="https://dextrading.io/bot/${i}">${i}</a> /remove_${i}`
+            if (settings[i]) html += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a> /remove_${i}`
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
@@ -53,7 +53,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
                 const orderId = `${token.substr(37)}${i}`
                 const data = table[token].tx[i];
                 const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
-                html += `\n <a href="https://dextrading.io/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell_${orderId}`;
+                html += `\n <a href="https://spiritx.org/trade/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell_${orderId}`;
             }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
@@ -72,7 +72,7 @@ Please go <a href="https://dextrading.io/bot">here</a> to create your first bot 
             let html = `<b>BOT [${botIds.join()}] Signal</b>
 
 📛 Token: ${data.name} (${data.symbol})
-〽️ Address: <a href="https://dextrading.io/${data.token}">${data.token}</a>
+〽️ Address: <a href="https://spiritx.org/trade/${data.token}">${data.token}</a>
 ✔️ Listed On: ${data.cmc ? `<a href="https://coinmarketcap.com/currencies/${data.cmc.slug}">CoinMarketCap</a> ` : ''}${data.cgk ? `<a href="https://www.coingecko.com/en/coins/${data.cgk.id}">CoinGecko</a>` : ''}
 📈 Price: $${data.price1h[0]}
 📢 DEX Volume (24h): $${data.volume[0]}
