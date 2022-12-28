@@ -37,6 +37,7 @@ class Portfolio {
             if (token.substr(37) != address) continue;
             if (!table[token].tx) continue;
             table[token].tx.splice(idx, 1);
+            return table[token].symbol;
         }
     }
 }

@@ -28,32 +28,112 @@ class Controller {
     }
 
     async printWelcome(chatId) {
-        let html = `<b>✨✨✨Welcome to SpiritX Signal BOT✨✨✨</b>
+        let html1 = `
+Hello,I’m the SpiritX  Signal Bot. I can help you find tokens according to the conditions you want  and you can also simulate purchase and sale cases so that you can make a profit.You can see other bots here:
+https://spiritx.org/spiritx-bots/my-bot-list
 
-Please go <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> to create your first bot 🤖`
-        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
+🎥 How to use :
+<a href="https://youtu.be/8Ug4klbWU5k">Video here</a>
+
+Use these commands to control me:
+
+🚀 Add bot:
+/add botID - Create a new conditional bot [eg. /add <b>SP1RXT</b>]
+
+🗑 Remove bot:
+/remove botID - Remove bot that created list [eg. /remove <b>SP1RXT</b>]
+
+💳 Emulator to buy the token you want :
+Click on the <b>Buynow</b> button in the box below each token.
+
+📖 List of tokens that have been simulated to buy :
+/wallet - Show the list of tokens that you have pressed to buy as well as the profitability of each token.
+
+✂️ List of tokens that can be deleted after emulation purchase:
+/sell - Show a list of tokens that you can delete after the emulator buys
+`
+        let html2 = `Take <b>Crtl+V</b> then press Enter to be able to create a new bot ✨✨✨`;
+        this.bot.sendMessage(chatId, html1, { parse_mode: "HTML" }).catch(console.log);
+        return this.bot.sendMessage(chatId, html2, { parse_mode: "HTML" }).catch(console.log);
     }
 
-    async printList(chatId) {
+    async printList(chatId, cmd, botId = undefined) {
         const settings = this.storage.get(chatId);
         let html = `<b>BOT List</b>\n`
+        if (cmd == "add") {
+            if (settings == []) {
+                html += `\nEmpty list! If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
+            } else if (botId) {
+                html += `\nYour bot <b>#${botId}</b> has been successfully created ,please wait for the signal 🚀🚀🚀`;
+            } else {
+                html += `\nList of bots you've created now.If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
+            }
+        } else if (cmd == "remove") {
+            if (settings == [] && !botId) {
+                html += `\nEmpty list! 🎯🎯🎯`;
+            } else if (settings == []) {
+                html += `\nYou successfully deleted the BOT <b>#${botId}</b>. Your list is empty 🎯🎯🎯`
+            } else if (botId) {
+                html += `\nYou successfully deleted the BOT <b>#${botId}</b>. Your list of existing bots 🎯🎯🎯`;
+            } else {
+                html += `\nYour list of existing bots 🎯🎯🎯`;
+            }
+        } else if (cmd == "list") {
+            if (settings == []) {
+                html += `\nEmpty list! If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
+            } else {
+                html += `\nList of bots created ⚡️⚡️⚡️`;
+            }
+        }
         for (let i in settings) {
-            if (settings[i]) html += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a> /remove_${i}`
+            if (settings[i]) {
+                if (cmd == "remove") {
+                    html += `\n🗑 /remove_${i}`;
+                } else {
+                    html += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a> /remove_${i}`;
+                }
+            }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
-    async printPortfolio(chatId) {
+    async printPortfolio(chatId, cmd, symbol = undefined) {
         const user = this.getUser(chatId);
         const table = user.all();
         let html = `<b>BOT Portfolio</b>\n`;
-        for (let token in table) {
-            if (!table[token].tx) continue;
-            for (let i in table[token].tx) {
-                const orderId = `${token.substr(37)}${i}`
-                const data = table[token].tx[i];
-                const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
-                html += `\n <a href="https://spiritx.org/trade/${token}">${table[token].symbol}</a> [${new Date(data.ts).toLocaleString()}] $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''} /sell_${orderId}`;
+        if (cmd == "wallet") {
+            let list = '';
+            for (let token in table) {
+                if (!table[token].tx) continue;
+                for (let i in table[token].tx) {
+                    const data = table[token].tx[i];
+                    const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
+                    list += `\n💎 <a href="https://spiritx.org/trade/${token}">${table[token].symbol}</a> Buy at [${new Date(data.ts).toLocaleString()}] Price: $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''}`;
+                }
+            }
+            if (list == "") {
+                html += `\nEmpty list! Please click <b>Buynow</b> token that you want to follow.`;
+            } else {
+                html += `\nList of tokens you have emulated to buy 💳💳💳` + list;
+            }
+        } else if (cmd == "sell") {
+            let list = '';
+            for (let token in table) {
+                if (!table[token].tx) continue;
+                for (let i in table[token].tx) {
+                    const orderId = `${token.substr(37)}${i}`
+                    list += `\n✂ <a href="https://spiritx.org/trade/${token}">${table[token].symbol}</a> /sell_${orderId}`;
+                }
+            }
+            if (symbol) {
+                html += `\nYou've successfully sold <b>#${symbol}</b>. `;
+            } else {
+                html += `\n`;
+            }
+            if (list == '') {
+                html += `Empty list! You don't have any tokens to sell. ✂️✂️✂️`;
+            } else {
+                html += `List of tokens that you can remove from the list ✂️✂️✂️` + list;
             }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
@@ -121,29 +201,33 @@ Please go <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> to crea
         if (msg.text == "/start") {
             this.storage.set(chatId, {});
             return this.printWelcome(chatId);
+        } else if (msg.text == "/add") {
+            return this.printList(chatId, "add");
         } else if (msg.text.startsWith("/add")) {
             const id = msg.text.substr(5).trim();
             const cur = this.storage.get(chatId);
             cur[id] = true;
             this.storage.set(chatId, cur);
-            return this.printList(chatId);
+            return this.printList(chatId, "add", id);
+        } else if (msg.text == "/remove") {
+            return this.printList(chatId, "remove");
         } else if (msg.text.startsWith("/remove")) {
             const id = msg.text.substr(8).trim();
             const cur = this.storage.get(chatId);
             cur[id] = false;
             this.storage.set(chatId, cur);
-            return this.printList(chatId);
+            return this.printList(chatId, "remove", id);
         } else if (msg.text == "/list") {
-            return this.printList(chatId);
+            return this.printList(chatId, "list");
         } else if (msg.text == "/wallet") {
-            return this.printPortfolio(chatId);
-        } else if (msg.text.startsWith("/sell_")) {
+            return this.printPortfolio(chatId, "wallet");
+        } else if (msg.text.startsWith("/sell")) {
             const orderId = msg.text.substr(6).trim();
             const address = orderId.substr(0, 5);
             const idx = orderId.substr(5);
             const user = this.getUser(chatId);
-            user.sell(address, idx);
-            return this.printPortfolio(chatId);
+            const symbol = user.sell(address, idx);
+            return this.printPortfolio(chatId, "sell", symbol);
         }
     }
 }
