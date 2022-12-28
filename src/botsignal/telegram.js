@@ -124,7 +124,7 @@ Click on the <b>Buynow</b> button in the box below each token.
                 if (!table[token].tx) continue;
                 for (let i in table[token].tx) {
                     const orderId = `${token.substr(37)}${i}`
-                    list += `\n✂ <a href="https://spiritx.org/trade/${token}">${table[token].symbol}</a> /sell_${orderId}`;
+                    list += `\n✂ ${table[token].symbol} /sell_${orderId}`;
                 }
             }
             if (symbol) {
