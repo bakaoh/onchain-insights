@@ -60,38 +60,40 @@ Click on the <b>Buynow</b> button in the box below each token.
     async printList(chatId, cmd, botId = undefined) {
         const settings = this.storage.get(chatId);
         let html = `<b>BOT List</b>\n`
-        if (cmd == "add") {
-            if (settings == []) {
-                html += `\nEmpty list! If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
-            } else if (botId) {
-                html += `\nYour bot <b>#${botId}</b> has been successfully created ,please wait for the signal 🚀🚀🚀`;
-            } else {
-                html += `\nList of bots you've created now.If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
-            }
-        } else if (cmd == "remove") {
-            if (settings == [] && !botId) {
-                html += `\nEmpty list! 🎯🎯🎯`;
-            } else if (settings == []) {
-                html += `\nYou successfully deleted the BOT <b>#${botId}</b>. Your list is empty 🎯🎯🎯`
-            } else if (botId) {
-                html += `\nYou successfully deleted the BOT <b>#${botId}</b>. Your list of existing bots 🎯🎯🎯`;
-            } else {
-                html += `\nYour list of existing bots 🎯🎯🎯`;
-            }
-        } else if (cmd == "list") {
-            if (settings == []) {
-                html += `\nEmpty list! If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
-            } else {
-                html += `\nList of bots created ⚡️⚡️⚡️`;
-            }
-        }
+        let list = '';
         for (let i in settings) {
             if (settings[i]) {
                 if (cmd == "remove") {
-                    html += `\n🗑 /remove_${i}`;
+                    list += `\n🗑 /remove_${i}`;
                 } else {
-                    html += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a> /remove_${i}`;
+                    list += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a>`;
                 }
+            }
+        }
+        if (cmd == "add") {
+            if (list == '') {
+                html += `\nEmpty list! If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
+            } else if (botId) {
+                html += `\nYour bot <b>#${botId}</b> has been successfully created, please wait for the signal 🚀🚀🚀` + list;
+            } else {
+                html += `\nList of bots you've created now. If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀` + list;
+            }
+        } else if (cmd == "remove") {
+            if (botId) {
+                html += `\nYou successfully deleted the BOT <b>#${botId}</b>. `;
+            } else {
+                html += `\n`;
+            }
+            if (list == '') {
+                html += `Your list is empty 🎯🎯🎯`
+            } else {
+                html += `Your list of existing bots 🎯🎯🎯` + list;
+            }
+        } else if (cmd == "list") {
+            if (list == '') {
+                html += `\nEmpty list! If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`;
+            } else {
+                html += `\nList of bots created ⚡️⚡️⚡️` + list;
             }
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
