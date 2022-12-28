@@ -203,6 +203,8 @@ Click on the <b>Buynow</b> button in the box below each token.
         if (msg.text == "/start") {
             this.storage.set(chatId, {});
             return this.printWelcome(chatId);
+        } else if (msg.text == "/help") {
+            return this.printWelcome(chatId);
         } else if (msg.text == "/add") {
             return this.printList(chatId, "add");
         } else if (msg.text.startsWith("/add")) {
