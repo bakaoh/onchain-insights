@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '/home/bakaking/bscchain/.env' });
+require('dotenv').config({ path: '/Users/vng/Desktop/coinmap/avachain/.env' });
 require('../common/network').useBSC();
 const express = require("express");
 const app = express();
