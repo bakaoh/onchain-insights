@@ -33,6 +33,7 @@ Nhấn vào nút <b>Buynow</b> ở dưới mỗi token để giả lập mua.
     portfolioHeader: `Danh mục đầu tư`,
     portfolioEmpty: `Danh sách trống! Vui lòng nhấp vào <b>Buy now</b> token mà bạn muốn theo dõi.💳💳💳`,
     portfolioList: `Danh sách các token bạn đã mua. 💳💳💳`,
+    portfolioBought: `Bạn đã mua thành công token`,
     portfolioSold: `Bạn đã bán thành công token`,
     portfolioEmptySell: `Danh sách trống! Bạn không có bất kỳ token nào để bán. Hãy nhấn <b>Buy now</b> nếu bạn muốn mua token mới ✂️✂️✂️`,
     portfolioListSell: `Danh sách token mà bạn có thể bán ✂️✂️✂️`,
@@ -46,4 +47,6 @@ Nhấn vào nút <b>Buynow</b> ở dưới mỗi token để giả lập mua.
     botAdded: `đã được tạo thành công, bạn vui lòng đợi tín hiệu .🚀🚀🚀`,
     buyAt: `Mua lúc`,
     price: `Giá`,
+    profit: `lời`,
+    loss: `lỗ`
 }

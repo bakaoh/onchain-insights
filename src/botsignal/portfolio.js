@@ -36,9 +36,12 @@ class Portfolio {
         for (let token in table) {
             if (token.substr(37) != address) continue;
             if (!table[token].tx) continue;
+            const buyTs = table[token].tx[idx].ts;
+            const buyPrice = table[token].tx[idx].price;
             table[token].tx.splice(idx, 1);
-            return table[token].symbol;
+            return { symbol: table[token].symbol, token, buyTs, buyPrice };
         }
+        return {};
     }
 }
 

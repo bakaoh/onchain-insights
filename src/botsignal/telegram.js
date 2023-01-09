@@ -59,82 +59,56 @@ class Controller {
         let html = `<b>${lang.botListHeader}</b>\n`
         let list = '';
         for (let i in settings) {
-            if (settings[i]) {
-                if (cmd == "remove") {
-                    list += `\n🗑 /remove_${i}`;
-                } else {
-                    list += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a>`;
-                }
+            if (!settings[i]) continue;
+            if (cmd == "remove") {
+                list += `\n🗑 /remove_${i}`;
+            } else {
+                list += `\n🤖 <a href="https://spiritx.org/spiritx-bots/signal-bot/${i}">${i}</a>`;
             }
         }
         if (cmd == "add") {
-            if (list == '') {
-                html += `\n` + lang.botListEmpty;
-            } else if (botId) {
-                html += `\nBot <b>#${botId}</b> ${lang.botAdded}${list}`;
-            } else {
-                html += `\n${lang.botAddList}${list}`;
-            }
+            html += `\n` + (botId ? `Bot <b>#${botId}</b> ${lang.botAdded}` : '');
+            html += list ? (lang.botAddList + list) : lang.botListEmpty;
         } else if (cmd == "remove") {
-            if (botId) {
-                html += `\n${lang.botRemoved} bot <b>#${botId}</b>. `;
-            } else {
-                html += `\n`;
-            }
-            if (list == '') {
-                html += lang.botRemoveEmpty;
-            } else {
-                html += lang.botRemoveList + list;
-            }
+            html += `\n` + (botId ? `${lang.botRemoved} bot <b>#${botId}</b>. ` : '');
+            html += list ? (lang.botRemoveList + list) : lang.botRemoveEmpty;
         } else if (cmd == "list") {
-            if (list == '') {
-                html += `\n` + lang.botListEmpty;
-            } else {
-                html += `\n` + lang.botList + list;
-            }
+            html += `\n` + (list ? (lang.botList + list) : lang.botListEmpty);
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
-    async printPortfolio(chatId, cmd, symbol = undefined) {
+    async printPortfolio(chatId, cmd, txInfo = undefined) {
         const lang = this.getScript(chatId);
         const user = this.getUser(chatId);
         const table = user.all();
         let html = `<b>${lang.portfolioHeader}</b>\n`;
-        if (cmd == "wallet") {
-            let list = '';
-            for (let token in table) {
-                if (!table[token].tx) continue;
-                for (let i in table[token].tx) {
+        let list = '';
+        for (let token in table) {
+            if (!table[token].tx) continue;
+            for (let i in table[token].tx) {
+                if (cmd == "sell") {
+                    const orderId = `${token.substr(37)}${i}`
+                    list += `\n✂ ${table[token].symbol} /sell_${orderId}`;
+                } else {
                     const data = table[token].tx[i];
                     const diff = this.prices[token] ? 100 * (this.prices[token] - data.price) / data.price : 0;
                     list += `\n💎 <a href="https://spiritx.org/trade/${token}">${table[token].symbol}</a> ${lang.buyAt} [${new Date(data.ts).toLocaleString()}] ${lang.price}: $${data.price} ${diff ? `(${diff.toFixed(2)}%)` : ''}`;
                 }
             }
-            if (list == "") {
-                html += `\n` + lang.portfolioEmpty;
-            } else {
-                html += `\n` + lang.portfolioList + list;
-            }
+        }
+        if (cmd == "wallet") {
+            html += `\n` + (list ? (lang.portfolioList + list) : lang.portfolioEmpty);
+        } else if (cmd == "buy") {
+            html += `\n` + (txInfo ? `${lang.portfolioBought} <b>#${txInfo.symbol}</b>. ` : '');
+            html += list ? (lang.portfolioList + list) : lang.portfolioEmpty;
         } else if (cmd == "sell") {
-            let list = '';
-            for (let token in table) {
-                if (!table[token].tx) continue;
-                for (let i in table[token].tx) {
-                    const orderId = `${token.substr(37)}${i}`
-                    list += `\n✂ ${table[token].symbol} /sell_${orderId}`;
-                }
+            if (txInfo) {
+                html += `\n${lang.portfolioSold} <b>#${txInfo.symbol}</b>. `;
+                const diff = this.prices[token] ? 100 * (this.prices[token] - txInfo.buyPrice) / txInfo.buyPrice : 0;
+                html += `\n${diff > 0 ? '💸' : '💣'} Token WTF ${diff > 0 ? lang.profit : lang.loss}: ${diff.toFixed(2)}%\n`
             }
-            if (symbol) {
-                html += `\n${lang.portfolioSold} <b>#${symbol}</b>. `;
-            } else {
-                html += `\n`;
-            }
-            if (list == '') {
-                html += lang.portfolioEmptySell;
-            } else {
-                html += lang.portfolioListSell + list;
-            }
+            html += `\n` + (list ? (lang.portfolioListSell + list) : lang.portfolioEmptySell);
         }
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
@@ -180,15 +154,13 @@ class Controller {
             await this.printHelp(chatId, true);
         } else if (cb.data.startsWith("BUY_")) {
             const token = cb.data.substr(4);
-            let answer = ""
             if (!this.prices[token]) {
-                answer = "Too late!";
+                await this.bot.answerCallbackQuery(cb.id, { text: "Too late!" }).catch(console.log);
             } else {
                 const user = this.getUser(cb.message.chat.id);
-                user.buy(token, this.prices[token], Date.now());
-                answer = "Succeed!";
+                const txInfo = user.buy(token, this.prices[token], Date.now());
+                await this.printPortfolio(chatId, "buy", txInfo);
             }
-            this.bot.answerCallbackQuery(cb.id, { text: answer }).catch(console.log);
             const option = {
                 parse_mode: "HTML",
                 chat_id: cb.message.chat.id,
@@ -235,8 +207,8 @@ class Controller {
             const address = orderId.substr(0, 5);
             const idx = orderId.substr(5);
             const user = this.getUser(chatId);
-            const symbol = user.sell(address, idx);
-            return this.printPortfolio(chatId, "sell", symbol);
+            const txInfo = user.sell(address, idx);
+            return this.printPortfolio(chatId, "sell", txInfo);
         }
     }
 }

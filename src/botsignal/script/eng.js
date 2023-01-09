@@ -27,6 +27,7 @@ Click on the <b>Buynow</b> button in the box below each token.
     portfolioHeader: `BOT Portfolio`,
     portfolioEmpty: `Empty list! Please click <b>Buynow</b> token that you want to follow.`,
     portfolioList: `List of tokens you have emulated to buy 💳💳💳`,
+    portfolioBought: `You have successfully purchased tokens`,
     portfolioSold: `You've successfully sold`,
     portfolioEmptySell: `Empty list! You don't have any tokens to sell. ✂️✂️✂️`,
     portfolioListSell: `List of tokens that you can remove from the list ✂️✂️✂️`,
@@ -40,4 +41,6 @@ Click on the <b>Buynow</b> button in the box below each token.
     botAdded: `has been successfully created, please wait for the signal 🚀🚀🚀`,
     buyAt: `Buy at`,
     price: `Price`,
+    profit: `profit`,
+    loss: `loss`
 }
