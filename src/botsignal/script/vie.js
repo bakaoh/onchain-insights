@@ -1,8 +1,6 @@
 module.exports = {
     helpMsg: `
-Xin chào, tôi là Bot tín hiệu SpiritX. Tôi có thể giúp bạn tìm mã thông báo, 
-theo các điều kiện bạn muốn và bạn cũng có thể mô phỏng các trường hợp 
-mua và bán để có thể kiếm lợi nhuận. Bạn có thể xem các bot khác tại đây:
+Xin chào, tôi là Bot tín hiệu SpiritX. Tôi có thể giúp bạn tìm mã thông báo, theo các điều kiện bạn muốn và bạn cũng có thể mô phỏng các trường hợp mua và bán để có thể kiếm lợi nhuận. Bạn có thể xem các bot khác tại đây:
 https://spiritx.org/spiritx-bots/my-bot-list
 
 🎥 Cách sử dụng:
