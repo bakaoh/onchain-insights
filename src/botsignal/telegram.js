@@ -106,7 +106,7 @@ class Controller {
             if (txInfo) {
                 html += `\n${lang.portfolioSold} <b>#${txInfo.symbol}</b>. `;
                 const diff = this.prices[txInfo.token] ? 100 * (this.prices[txInfo.token] - txInfo.buyPrice) / txInfo.buyPrice : 0;
-                html += `\n${diff > 0 ? '💸' : '💣'} Token WTF ${diff > 0 ? lang.profit : lang.loss}: ${diff.toFixed(2)}%\n`
+                html += `\n${diff > 0 ? '💸' : '💣'} Token <b>#${txInfo.symbol}</b> ${diff > 0 ? lang.profit : lang.loss}: ${diff.toFixed(2)}%\n`
             }
             html += `\n` + (list ? (lang.portfolioListSell + list) : lang.portfolioEmptySell);
         }

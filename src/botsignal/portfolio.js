@@ -29,6 +29,7 @@ class Portfolio {
         if (cur.tx instanceof Array) cur.tx.push({ price, ts });
         else cur.tx = [{ price, ts }];
         this.storage.set(token, cur);
+        return { symbol: cur.symbol, token, buyTs: ts, buyPrice: price };
     }
 
     sell(address, idx) {
