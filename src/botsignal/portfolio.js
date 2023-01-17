@@ -40,6 +40,7 @@ class Portfolio {
             const buyTs = table[token].tx[idx].ts;
             const buyPrice = table[token].tx[idx].price;
             table[token].tx.splice(idx, 1);
+            this.storage.set(token, table[token]);
             return { symbol: table[token].symbol, token, buyTs, buyPrice };
         }
         return {};
