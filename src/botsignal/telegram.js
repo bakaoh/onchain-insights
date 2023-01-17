@@ -159,7 +159,7 @@ class Controller {
             } else {
                 const user = this.getUser(cb.message.chat.id);
                 const txInfo = user.buy(token, this.prices[token], Date.now());
-                await this.printPortfolio(chatId, "buy", txInfo);
+                await this.printPortfolio(cb.from.id, "buy", txInfo);
             }
             const option = {
                 parse_mode: "HTML",
