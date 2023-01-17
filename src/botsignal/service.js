@@ -68,6 +68,12 @@ app.post('/bot/check', async (req, res) => {
     res.json({ status: "ok" });
 })
 
+app.get('/bot/history/:chatId', async (req, res) => {
+    const chatId = req.params.chatId;
+    const history = await telegram.getHistory(chatId);
+    res.json({ status: "ok", history });
+})
+
 async function start(port) {
     const startMs = Date.now();
 

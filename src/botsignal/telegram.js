@@ -20,6 +20,10 @@ class Controller {
         this.bot.on("callback_query", this.onCallback);
     }
 
+    getHistory(chatId) {
+        return this.history.loadLog(chatId);
+    }
+
     getUser(chatId) {
         if (!this.users[chatId]) this.users[chatId] = new Portfolio(chatId);
         return this.users[chatId];
