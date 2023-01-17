@@ -1,6 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api");
 const Storage = require("./storage");
 const Portfolio = require("./portfolio");
+const History = require("./history");
 const EngScript = require("./script/eng");
 const VieScript = require("./script/vie");
 
@@ -8,6 +9,7 @@ class Controller {
     constructor(telegramToken) {
         this.storage = new Storage("db/controller1.json");
         this.bot = new TelegramBot(telegramToken, { polling: true });
+        this.history = new History();
         this.users = {};
         this.onMessage = this.onMessage.bind(this);
         this.onCallback = this.onCallback.bind(this);
@@ -113,6 +115,21 @@ class Controller {
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
+    async printHistory(chatId) {
+        const lang = this.getScript(chatId);
+        const history = this.history.loadLog(chatId);
+        let html = `<b>${lang.historyHeader}</b>\n`;
+        let list = '';
+        for (let item of history) {
+            const buyPrice = parseFloat(item.buyPrice);
+            const sellPrice = parseFloat(item.sellPrice);
+            const diff = 100 * (sellPrice - buyPrice) / buyPrice;
+            list += `\n💎 <a href="https://spiritx.org/trade/${item.token}">${item.symbol}</a> ${lang.buyAt} [${new Date(item.buyTs).toLocaleString()}] ${item.buyPrice}, ${lang.sellAt} [${new Date(item.sellTs).toLocaleString()}] ${item.sellPrice} (${diff.toFixed(2)}%)`;
+        }
+        html += '\n' + list;
+        return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
+    }
+
     async sendSignal(ids, data) {
         if (ids.length == 0) return;
         const all = this.storage.all();
@@ -210,7 +227,14 @@ class Controller {
             const idx = orderId.substr(5);
             const user = this.getUser(chatId);
             const txInfo = user.sell(address, idx);
-            return this.printPortfolio(chatId, "sell", txInfo);
+            await this.printPortfolio(chatId, "sell", txInfo);
+            return this.history.writeLog(chatId,
+                txInfo.symbol, txInfo.token,
+                txInfo.buyTs, txInfo.buyPrice,
+                Date.now(), this.prices[txInfo.token]
+            );
+        } else if (msg.text == "/history") {
+            return this.printHistory(chatId);
         }
     }
 }

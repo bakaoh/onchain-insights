@@ -39,7 +39,9 @@ Click on the <b>Buynow</b> button in the box below each token.
     botRemoveList: `Your list of existing bots 🎯🎯🎯`,
     botAddList: `List of bots you've created now. If you would like to create a new condition bot click <a href="https://spiritx.org/spiritx-bots/signal-bot">here</a> 🚀🚀🚀`,
     botAdded: `has been successfully created, please wait for the signal 🚀🚀🚀`,
+    historyHeader: `BOT History`,
     buyAt: `Buy at`,
+    sellAt: `Sell at`,
     price: `Price`,
     profit: `profit`,
     loss: `loss`

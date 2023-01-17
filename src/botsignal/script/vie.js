@@ -45,7 +45,9 @@ Nhấn vào nút <b>Buynow</b> ở dưới mỗi token để giả lập mua.
     botRemoveList: `Danh sách các bot hiện có của bạn. Xóa bot bằng cách nhấn vào icon thùng rác 🎯🎯🎯`,
     botAddList: `Danh sách các bot bạn đã tạo hiện tại. Nếu bạn muốn tạo một điều kiện mới, hãy nhấp vào <a href="https://spiritx.org/spiritx-bots/signal-bot">đây</a> 🚀🚀🚀`,
     botAdded: `đã được tạo thành công, bạn vui lòng đợi tín hiệu .🚀🚀🚀`,
+    historyHeader: `Lịch sử giao dịch`,
     buyAt: `Mua lúc`,
+    sellAt: `Bán lúc`,
     price: `Giá`,
     profit: `lời`,
     loss: `lỗ`
