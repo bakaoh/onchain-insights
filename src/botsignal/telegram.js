@@ -125,7 +125,7 @@ class Controller {
                 const buyPrice = parseFloat(item.buyPrice);
                 const sellPrice = parseFloat(item.sellPrice);
                 const diff = 100 * (sellPrice - buyPrice) / buyPrice;
-                list += `\n💎 <a href="https://spiritx.org/trade/${item.token}">${item.symbol}</a> ${lang.buyAt} [${new Date(item.buyTs).toLocaleString()}] ${item.buyPrice}, ${lang.sellAt} [${new Date(item.sellTs).toLocaleString()}] ${item.sellPrice} (${diff.toFixed(2)}%)`;
+                list += `\n💎 <a href="https://spiritx.org/trade/${item.token}">${item.symbol}</a> ${lang.buyAt} [${new Date(parseInt(item.buyTs)).toLocaleString()}] ${item.buyPrice}, ${lang.sellAt} [${new Date(parseInt(item.sellTs)).toLocaleString()}] ${item.sellPrice} (${diff.toFixed(2)}%)`;
             }
             html += `\n` + list;
         } else {
