@@ -117,16 +117,20 @@ class Controller {
 
     async printHistory(chatId) {
         const lang = this.getScript(chatId);
-        const history = this.history.loadLog(chatId);
+        const history = await this.history.loadLog(chatId).catch(console.log);
         let html = `<b>${lang.historyHeader}</b>\n`;
-        let list = '';
-        for (let item of history) {
-            const buyPrice = parseFloat(item.buyPrice);
-            const sellPrice = parseFloat(item.sellPrice);
-            const diff = 100 * (sellPrice - buyPrice) / buyPrice;
-            list += `\n💎 <a href="https://spiritx.org/trade/${item.token}">${item.symbol}</a> ${lang.buyAt} [${new Date(item.buyTs).toLocaleString()}] ${item.buyPrice}, ${lang.sellAt} [${new Date(item.sellTs).toLocaleString()}] ${item.sellPrice} (${diff.toFixed(2)}%)`;
+        if (history) {
+            let list = '';
+            for (let item of history) {
+                const buyPrice = parseFloat(item.buyPrice);
+                const sellPrice = parseFloat(item.sellPrice);
+                const diff = 100 * (sellPrice - buyPrice) / buyPrice;
+                list += `\n💎 <a href="https://spiritx.org/trade/${item.token}">${item.symbol}</a> ${lang.buyAt} [${new Date(item.buyTs).toLocaleString()}] ${item.buyPrice}, ${lang.sellAt} [${new Date(item.sellTs).toLocaleString()}] ${item.sellPrice} (${diff.toFixed(2)}%)`;
+            }
+            html += `\n` + list;
+        } else {
+            html += `\n` + lang.historyEmpty;
         }
-        html += '\n' + list;
         return this.bot.sendMessage(chatId, html, { parse_mode: "HTML" }).catch(console.log);
     }
 
@@ -228,11 +232,12 @@ class Controller {
             const user = this.getUser(chatId);
             const txInfo = user.sell(address, idx);
             await this.printPortfolio(chatId, "sell", txInfo);
-            return this.history.writeLog(chatId,
+            if (this.prices[txInfo.token]) this.history.writeLog(chatId,
                 txInfo.symbol, txInfo.token,
                 txInfo.buyTs, txInfo.buyPrice,
                 Date.now(), this.prices[txInfo.token]
             );
+            return;
         } else if (msg.text == "/history") {
             return this.printHistory(chatId);
         }
